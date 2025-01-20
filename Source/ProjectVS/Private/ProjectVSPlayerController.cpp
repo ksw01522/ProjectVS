@@ -18,6 +18,7 @@
 #include "Ability/AbilityBookComponent.h"
 #include "VSPlayerState.h"
 #include "Components/Widget.h"
+#include "Player/WidgetManagerComponent.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -27,6 +28,8 @@ AProjectVSPlayerController::AProjectVSPlayerController()
 	DefaultMouseCursor = EMouseCursor::Default;
 
 	PrimaryActorTick.bCanEverTick = true;
+
+	WidgetManager = CreateDefaultSubobject<UWidgetManagerComponent>("WidgetManager", true);
 }
 
 void AProjectVSPlayerController::BeginPlay()
@@ -34,11 +37,8 @@ void AProjectVSPlayerController::BeginPlay()
 	// Call the base class  
 	Super::BeginPlay();
 
-	CreateMainUI();
+	InitiailizeWidgets();
 
-	TryAbilityLevelUpWindow = CreateWidget<UTryAbilityLevelUpWindow>(this, TryAbilityLevelUpWindowClass, "Ability Level Up Window");
-	TryAbilityLevelUpWindow->SetVisibility(ESlateVisibility::Collapsed);
-	TryAbilityLevelUpWindow->AddToViewport(1);
 
 	SetInputModeToGame();
 
@@ -96,12 +96,23 @@ void AProjectVSPlayerController::SetupInputComponent()
 	}
 }
 
-void AProjectVSPlayerController::CreateMainUI()
+void AProjectVSPlayerController::InitiailizeWidgets()
 {
-	if(MainUIClass == nullptr) return;
+	UPlayerMainUIWidget* NewMainUI = WidgetManager->AddWidget<UPlayerMainUIWidget>("MainUI", MainUIClass);
+	if (NewMainUI)
+	{
+		NewMainUI->AddToViewport(0);
+	}
 
-	MainUI = CreateWidget<UPlayerMainUIWidget>(this, MainUIClass, "MainUI");
-	MainUI->AddToViewport(0);
+	if (UTryAbilityLevelUpWindow* NewAbilityLevelUpWindow = CreateWidget<UTryAbilityLevelUpWindow>(this, TryAbilityLevelUpWindowClass, "Ability Level Up Window"))
+	{
+		WidgetManager->AddWidget("AbilityLevelUpWindow", NewAbilityLevelUpWindow);
+
+		NewAbilityLevelUpWindow->SetVisibility(ESlateVisibility::Collapsed);
+		NewAbilityLevelUpWindow->AddToViewport(1);
+	}
+
+
 }
 
 FGenericTeamId AProjectVSPlayerController::GetGenericTeamId() const
@@ -129,13 +140,14 @@ void AProjectVSPlayerController::TryAbilityLevelUp()
 
 void AProjectVSPlayerController::SelectAbilityLevelUp(const TArray<FAbilityLevelUpTargetInfo>& InTargets)
 {
-	if(TryAbilityLevelUpWindow == nullptr) return;
+	UTryAbilityLevelUpWindow* AbilityLevelUpWindow = WidgetManager->FindWidget<UTryAbilityLevelUpWindow>("AbilityLevelUpWindow");
+	check(AbilityLevelUpWindow);
 
-	TryAbilityLevelUpWindow->SetAbilityLevelUp(InTargets);
+	AbilityLevelUpWindow->SetAbilityLevelUp(InTargets);
 
-	TryAbilityLevelUpWindow->SetVisibility(ESlateVisibility::Visible);
+	AbilityLevelUpWindow->SetVisibility(ESlateVisibility::Visible);
 
-	SetInputModeToUI(TryAbilityLevelUpWindow);
+	SetInputModeToUI(AbilityLevelUpWindow);
 
 	SetPause(true);
 }

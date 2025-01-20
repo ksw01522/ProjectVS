@@ -30,20 +30,13 @@ private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI", meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<class UStageResultWindow> StageResultWidgetClass;
 
-	UPROPERTY(Transient)
-	TObjectPtr<class UStageResultWindow> StageResultWidget = nullptr;
-
-public:
-	void ShowStageResultWindow();
-	void HideStageResultWindow();
-
 private:
 	FTimerHandle TimerHandle_UpdateStageTime;
 	void UpdateStageTime(float InTime);
 
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GameRule", meta = (AllowPrivateAccess = "true", ClampMin = "1"))
-	float ClearSeconds;
+	float ClearSeconds = 10;
 
 	bool bClearGame = false;
 

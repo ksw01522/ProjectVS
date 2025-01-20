@@ -12,6 +12,7 @@
 #include "Character/Monster/VSMonster.h"
 #include "ProjectVSPlayerController.h"
 #include "Player/Widget/StageResultWindow.h"
+#include "Player/WidgetManagerComponent.h"
 
 AProjectVSGameMode::AProjectVSGameMode(const FObjectInitializer& ObjectInitializer) :
 			Super(ObjectInitializer)
@@ -72,7 +73,9 @@ void AProjectVSGameMode::StartNewStage()
 											FTimerDelegate::CreateUObject(this, &AProjectVSGameMode::UpdateStageTime, UpdateTime),
 											UpdateTime, true);
 
-	if (DefaultSpawnRule)
+	ENetMode CurrentNetMode = GetNetMode();
+
+	if (DefaultSpawnRule && CurrentNetMode != ENetMode::NM_Client)
 	{
 		TWeakObjectPtr<USpawnRule> WeakDefaultSpawRule = DefaultSpawnRule;
 		TWeakObjectPtr<UWorld> WeakWorld = GetWorld();
@@ -92,25 +95,7 @@ void AProjectVSGameMode::StartNewStage()
 	}
 }
 
-void AProjectVSGameMode::ShowStageResultWindow()
-{
-	if (StageResultWidget == nullptr)
-	{
-		StageResultWidget = CreateWidget<UStageResultWindow>(GetGameInstance(), StageResultWidgetClass);
-	}
 
-	if (StageResultWidget == nullptr) return;
-
-	StageResultWidget->SetVisibility(ESlateVisibility::Visible);
-}
-
-void AProjectVSGameMode::HideStageResultWindow()
-{
-	if (StageResultWidget == nullptr) return;
-
-	StageResultWidget->SetVisibility(ESlateVisibility::Collapsed);
-
-}
 
 void AProjectVSGameMode::UpdateStageTime(float InTime)
 {

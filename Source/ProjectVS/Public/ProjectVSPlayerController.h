@@ -36,15 +36,18 @@ protected:
 
 	virtual void Tick(float DeltaTime) override;
 
+private:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UWidgetManagerComponent> WidgetManager;
+
+public:
+	UWidgetManagerComponent* GetWidgetManager() const { return WidgetManager; }
 
 private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI", meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<class UPlayerMainUIWidget> MainUIClass;
 
-	UPROPERTY()
-	TObjectPtr<class UPlayerMainUIWidget> MainUI;
-
-	void CreateMainUI();
+	void InitiailizeWidgets();
 
 public:
 	virtual FGenericTeamId GetGenericTeamId() const override;
@@ -52,9 +55,6 @@ public:
 private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI", meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<class UTryAbilityLevelUpWindow> TryAbilityLevelUpWindowClass;
-
-	UPROPERTY(Transient)
-	TObjectPtr<class UTryAbilityLevelUpWindow> TryAbilityLevelUpWindow = nullptr;
 
 	int AbilityLevelUpCount = 0;
 
