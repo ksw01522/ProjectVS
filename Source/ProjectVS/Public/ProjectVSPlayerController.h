@@ -73,8 +73,6 @@ private:
 	UFUNCTION()
 	void OnPlayerLevelUp(int BeforeLevel, int AfterLevel);
 
-
-
 #if WITH_EDITORONLY_DATA
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Debug", meta = (AllowPrivateAccess = "true"))

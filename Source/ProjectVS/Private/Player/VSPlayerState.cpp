@@ -23,6 +23,7 @@
 
 #include "VSGameInstance.h"
 
+#include "ProjectVSGameMode.h"
 
 AVSPlayerState::AVSPlayerState()
 {	
@@ -153,6 +154,19 @@ void AVSPlayerState::InitializeASC()
 			delete AbilitySpec;
 		}
 	}
+
+	//HP의 변화에 따른 이벤트
+	ASC->GetGameplayAttributeValueChangeDelegate(UAttributeSet_Default::GetHPAttribute()).AddUObject(this, &AVSPlayerState::OnHPChanged);
+}
+
+void AVSPlayerState::OnHPChanged(const FOnAttributeChangeData& HPData)
+{
+	if (HPData.NewValue <= 0 && ASC->GetTagCount(FGameplayTag::RequestGameplayTag("State.Dead")) <= 0)
+	{
+		AProjectVSGameMode* VSGameMode = GetWorld()->GetAuthGameMode<AProjectVSGameMode>();
+
+		VSGameMode->OnPlayerDead(this);
+	}
 }
 
 
@@ -187,7 +201,15 @@ void AVSPlayerState::GainGold(float InGold)
 {
 	if(!ASC->IsOwnerActorAuthoritative() || InGold <= 0) {return;}
 
-	ASC->ApplyModToAttribute(UAttributeSet_Player::GetGoldAttribute(), EGameplayModOp::Additive, InGold);
+	bool bFound = false;
+	float Greed = ASC->GetGameplayAttributeValue(UAttributeSet_Player::GetGreedAttribute(), bFound);
+	float FinalGold = InGold * bFound ? Greed : 1;
+	ASC->ApplyModToAttribute(UAttributeSet_Player::GetGoldAttribute(), EGameplayModOp::Additive, FinalGold);
+}
+
+float AVSPlayerState::GetGold() const
+{
+	return ATS_Player->GetGold();
 }
 
 void AVSPlayerState::SaveGold_Implementation()

@@ -50,7 +50,8 @@ private:
 	void SetCharacterName(const FName& NewName);
 
 	void InitializeASC();
-
+	
+	void OnHPChanged(const struct FOnAttributeChangeData& HPData);
 
 public:
 	virtual class UAbilitySystemComponent* GetAbilitySystemComponent() const override { return ASC;}
@@ -67,6 +68,7 @@ public:
 
 public:
 	void GainGold(float InGold);
+	float GetGold() const;
 
 	UFUNCTION(Client, Reliable)
 	void SaveGold();

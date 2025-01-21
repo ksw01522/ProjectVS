@@ -202,7 +202,8 @@ int UVSAbility_HandCannon::GetFireCount(const FGameplayAbilitySpecHandle Handle,
 #if WITH_EDITOR
 	if (ADM == nullptr)
 	{
-		if(FireCount.IsValidIndex(AbLevel -1)) { ReturnFireCount = FireCount[AbLevel - 1]; }
+		LOG_ERROR(TEXT("setset"));
+		if(FireCount.IsValidIndex(AbLevel)) { ReturnFireCount = FireCount[AbLevel]; }
 	}
 #endif
 	

@@ -206,13 +206,13 @@ float UAbilityEditorSubsystem::FindAbilityData(const FGameplayTag& InTag, bool& 
 		return 0;
 	}
 	
-	if (FindedArray->Num() < Level)
+	if (FindedArray->Num() <= Level)
 	{
 		bFinded = false;
 		return 0;
 	}
 
-	return (*FindedArray)[Level - 1];
+	return (*FindedArray)[Level];
 }
 
 bool UAbilityEditorSubsystem::FindAbilityDataArray(TArray<float>& Out, const FGameplayTag& InTag) const

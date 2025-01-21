@@ -98,7 +98,7 @@ void AProjectVSPlayerController::SetupInputComponent()
 
 void AProjectVSPlayerController::InitiailizeWidgets()
 {
-	UPlayerMainUIWidget* NewMainUI = WidgetManager->AddWidget<UPlayerMainUIWidget>("MainUI", MainUIClass);
+	UPlayerMainUIWidget* NewMainUI = Cast<UPlayerMainUIWidget>(WidgetManager->AddWidget("MainUI", MainUIClass));
 	if (NewMainUI)
 	{
 		NewMainUI->AddToViewport(0);
@@ -140,7 +140,7 @@ void AProjectVSPlayerController::TryAbilityLevelUp()
 
 void AProjectVSPlayerController::SelectAbilityLevelUp(const TArray<FAbilityLevelUpTargetInfo>& InTargets)
 {
-	UTryAbilityLevelUpWindow* AbilityLevelUpWindow = WidgetManager->FindWidget<UTryAbilityLevelUpWindow>("AbilityLevelUpWindow");
+	UTryAbilityLevelUpWindow* AbilityLevelUpWindow = Cast<UTryAbilityLevelUpWindow>(WidgetManager->FindWidget("AbilityLevelUpWindow"));
 	check(AbilityLevelUpWindow);
 
 	AbilityLevelUpWindow->SetAbilityLevelUp(InTargets);

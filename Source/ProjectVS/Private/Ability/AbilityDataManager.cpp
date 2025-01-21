@@ -99,15 +99,15 @@ float UAbilityDataManager::FindAbilityData(const FGameplayTag& DataTag, bool& bR
 
 	const TArray<float>& RefArray = *FindedArray;
 
-	if (RefArray.Num() < Level)
+	if (RefArray.Num() <= Level)
 	{
 		LOG_ERROR(TEXT("Try Find {%s} Level : %d, in : %d"), *DataTag.GetTagName().ToString(), Level, FindedArray->Num());
 		return 0;
 	}
 
 	bResult = true;
-	LOG_INFO(TEXT("Finded {%s}, Level : %d, Value : %.1f"), *DataTag.GetTagName().ToString(), Level, RefArray[Level-1]);
-	return RefArray[Level-1];
+	LOG_INFO(TEXT("Finded {%s}, Level : %d, Value : %.1f"), *DataTag.GetTagName().ToString(), Level, RefArray[Level]);
+	return RefArray[Level];
 }
 
 bool UAbilityDataManager::InitializeAddableAbilities(const FName& InCharacterName, TArray<FName>& OutAbilities)
@@ -155,6 +155,7 @@ void UAbilityDataManager::ReadAbilityDataCSV()
 			TArray<FString> AbilityData;
 
 			ParseLines[i].ParseIntoArray(AbilityData, TEXT(","));
+			if(AbilityData[0] == "") {continue;}
 
 			int DataNum = AbilityData.Num();
 

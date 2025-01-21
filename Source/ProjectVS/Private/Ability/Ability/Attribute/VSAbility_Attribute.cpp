@@ -98,7 +98,7 @@ float UVSAbility_Attribute::GetValue(int InAbilityLevel) const
 		RetValue = ADM->FindAbilityData(BonuseValueTag, bResult, InAbilityLevel);
 	}
 #if WITH_EDITOR
-	else{ if(BonusValue.IsValidIndex(InAbilityLevel-1)){RetValue = BonusValue[InAbilityLevel - 1];}}
+	else{ if(BonusValue.IsValidIndex(InAbilityLevel)){RetValue = BonusValue[InAbilityLevel];}}
 #endif
 
 	return RetValue;

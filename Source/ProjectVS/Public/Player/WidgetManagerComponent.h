@@ -29,21 +29,17 @@ private:
 	TMap<FName, TObjectPtr<class UUserWidget>> WidgetTable;
 
 public:
-	UUserWidget* AddWidget(const FName& InKey, TSubclassOf<UUserWidget> InClass);
-	
-	template<class T>
-	T* AddWidget(const FName& InKey, TSubclassOf<T> InClass);
+	//UFUNCTION(Client, Reliable)
+	//void AddWidgetByServer(const FName& InKey, TSubclassOf<UUserWidget> InClass);
+	//void AddWidgetByServer_Implementation(const FName& InKey, TSubclassOf<UUserWidget> InClass);
 
+
+	UUserWidget* AddWidget(const FName& InKey, TSubclassOf<UUserWidget> InClass);
 
 	UUserWidget* AddWidget(const FName& InKey, UUserWidget* InWidget);
-	
-	template<class T>
-	T* AddWidget(const FName& InKey, T* InWidget);
 
 	void RemoveWidget(const FName& InKey);
 	
 	UUserWidget* FindWidget(const FName& InKey) const;
 
-	template<class T>
-	T* FindWidget(const FName& InKey) const;
 };

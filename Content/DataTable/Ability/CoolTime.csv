@@ -1,4 +1,4 @@
-Type,Value
-CoolTime.Test,2.0
-CoolTime.HandCannonFire,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0
-CoolTime.Topspin,5.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0
+Type,,Value,,,,,,,
+,,,,,,,,,
+CoolTime.HandCannonFire,0,1,1,1,1,1,1,1,1
+CoolTime.Topspin,0,2,2,2,2,2,2,2,2

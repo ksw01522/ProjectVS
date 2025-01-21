@@ -8,6 +8,8 @@
 #include "Components/RichTextBlock.h"
 #include "PlayGameState.h"
 #include "ProjectVS.h"
+#include "Player/VSPlayerState.h"
+#include "VSGameInstance.h"
 
 void UStageResultWindow::NativeConstruct()
 {
@@ -18,8 +20,6 @@ void UStageResultWindow::NativeConstruct()
 
 void UStageResultWindow::NativeDestruct()
 {
-	LOG_ERROR(TEXT("Call NativeDestruct"));
-
 	Super::NativeDestruct();
 }
 
@@ -28,7 +28,11 @@ void UStageResultWindow::OnClickedToTileBTN()
 	AProjectVSPlayerController* PlayerController = GetOwningPlayer<AProjectVSPlayerController>();
 	if(PlayerController == nullptr) return;
 
-	UGameplayStatics::OpenLevel(PlayerController, "TitleLevel");
+	AVSPlayerState* PlayerState = GetOwningPlayerState<AVSPlayerState>();
+	PlayerState->SaveGold();
+
+	UVSGameInstance* VSGameInst = GetGameInstance<UVSGameInstance>();
+	VSGameInst->LoadTitleMap();
 }
 
 void UStageResultWindow::SetStageResult(bool bCleared)
@@ -45,10 +49,25 @@ void UStageResultWindow::SetResultGold(float NewGold)
 
 void UStageResultWindow::SetStageTime(float NewTime)
 {
+	FFormatNamedArguments Args;
+
+	int NewMinute = NewTime / 60;
+	int NewSeconds = NewTime - (NewMinute * 60);
+
+	FString NewMinuteString = NewMinute < 10 ? FString::Printf(TEXT("0%d"), NewMinute) : FString::FromInt(NewMinute);
+	FString NewSecondsString = NewSeconds < 10 ? FString::Printf(TEXT("0%d"), NewSeconds) : FString::FromInt(NewSeconds);
+
+	FString NewStageTime = FString::Printf(TEXT("%s : %s"), *NewMinuteString, *NewSecondsString);
+	StageTimeText->SetText(FText::FromString(NewStageTime));
 }
 
 void UStageResultWindow::SetMonsterKillCount(int NewCount)
 {
+	FFormatNamedArguments Args;
+
+	Args.Add("KillCount", NewCount);
+
+	KillCountText->SetText(FText::Format(NSLOCTEXT("VSWidget", "Result_KillCount", "KillCount : {KillCount}"), Args));
 }
 
 void UStageResultWindow::UpdateStageResultWindow()
@@ -59,6 +78,9 @@ void UStageResultWindow::UpdateStageResultWindow()
 	APlayGameState* PlayGameState = CurrentWorld->GetGameState<APlayGameState>();
 	if(PlayGameState == nullptr) return;
 
+	AVSPlayerState* PlayerState = GetOwningPlayerState<AVSPlayerState>();
+	if(PlayerState == nullptr) return;
+
 	bool bCleared = PlayGameState->GetStageState() == EStageState::Clear ? true : false;
 	SetStageResult(bCleared);
 
@@ -68,6 +90,6 @@ void UStageResultWindow::UpdateStageResultWindow()
 	int FinalMonsterKillCount = PlayGameState->GetMonsterKillCount();
 	SetMonsterKillCount(FinalMonsterKillCount);
 
-
-
+	float FinalGold = PlayerState->GetGold();
+	SetResultGold(FinalGold);
 }

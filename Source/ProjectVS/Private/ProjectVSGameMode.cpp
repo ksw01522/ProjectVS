@@ -13,6 +13,9 @@
 #include "ProjectVSPlayerController.h"
 #include "Player/Widget/StageResultWindow.h"
 #include "Player/WidgetManagerComponent.h"
+#include "UserWidget.h"
+#include "Player/WidgetManagerComponent.h"
+#include "Player/VSPlayerState.h"
 
 AProjectVSGameMode::AProjectVSGameMode(const FObjectInitializer& ObjectInitializer) :
 			Super(ObjectInitializer)
@@ -130,14 +133,17 @@ void AProjectVSGameMode::OnTimeUpClearGame()
 	LOG_WARNING(TEXT("On TimeUp ClearGame"))
 
 	bClearGame = true;
+
+	//임시 OnGameOver
+	OnGameOver();
 }
 
-void AProjectVSGameMode::OnPlayerDead()
+void AProjectVSGameMode::OnPlayerDead(AVSPlayerState* InPlayer)
 {
 	LOG_WARNING(TEXT("On Player Dead"));
 
-	
-
+	//임시
+	OnGameOver();
 }
 
 void AProjectVSGameMode::OnGameOver()
@@ -153,13 +159,18 @@ void AProjectVSGameMode::OnGameOver()
 		PlayGameState->SetStageState(EStageState::Fail);
 	}
 
-	for (auto It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	
+	if (AProjectVSPlayerController* FirstLocal = Cast<AProjectVSPlayerController>(GetGameInstance()->GetFirstLocalPlayerController(GetWorld())))
 	{
-		AVSPlayerState* PlayerState = It->Get()->GetPlayerState<AVSPlayerState>();
+		UWidgetManagerComponent* PlayerWidgetManager = FirstLocal->GetWidgetManager();
 
-		AProjectVSPlayerController* PlayerController = Cast<AProjectVSPlayerController>(It->Get());
+		SetPause(FirstLocal);
 
-		PlayerState->SaveGold();
+		UUserWidget* NewWidget = PlayerWidgetManager->AddWidget("StageResultWindow", StageResultWidgetClass);
+		if (NewWidget)
+		{
+			NewWidget->AddToViewport(1);
+		}
 	}
 }
 

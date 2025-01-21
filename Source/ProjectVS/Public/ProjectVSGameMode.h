@@ -43,7 +43,7 @@ private:
 	void OnTimeUpClearGame();
 
 public:
-	void OnPlayerDead();
+	void OnPlayerDead(class AVSPlayerState* InPlayer);
 	void OnGameOver();
 };
 

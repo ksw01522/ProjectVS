@@ -34,6 +34,11 @@ void UWidgetManagerComponent::TickComponent(float DeltaTime, ELevelTick TickType
 	// ...
 }
 
+//void UWidgetManagerComponent::AddWidgetByServer_Implementation(const FName& InKey, TSubclassOf<UUserWidget> InClass)
+//{
+//	AddWidget(InKey, InClass);
+//}
+
 UUserWidget* UWidgetManagerComponent::AddWidget(const FName& InKey, TSubclassOf<UUserWidget> InClass)
 {
 	if(InKey.IsNone()) return nullptr;
@@ -41,16 +46,6 @@ UUserWidget* UWidgetManagerComponent::AddWidget(const FName& InKey, TSubclassOf<
 	UUserWidget* NewWidget = CreateWidget(GetOwner<AProjectVSPlayerController>(), InClass);
 	
 	return AddWidget(InKey, NewWidget);
-}
-
-template<class T>
-T* UWidgetManagerComponent::AddWidget(const FName& InKey, TSubclassOf<T> InClass)
-{
-	if (InKey.IsNone()) return nullptr;
-
-	T* NewWidget = CreateWidget<T>(GetOwner<AProjectVSPlayerController>(), InClass);
-
-	return AddWidget<T>(InKey, NewWidget);
 }
 
 
@@ -63,11 +58,7 @@ UUserWidget* UWidgetManagerComponent::AddWidget(const FName& InKey, UUserWidget*
 	return InWidget;
 }
 
-template<class T>
-T* UWidgetManagerComponent::AddWidget(const FName& InKey, T* InWidget)
-{
-	return Cast<T>(AddWidget(InKey, InWidget));
-}
+
 
 void UWidgetManagerComponent::RemoveWidget(const FName& InKey)
 {
@@ -83,10 +74,4 @@ UUserWidget* UWidgetManagerComponent::FindWidget(const FName& InKey) const
 	if(!WidgetTable.Contains(InKey)) return nullptr;
 
 	return WidgetTable.FindRef(InKey);
-}
-
-template<class T>
-T* UWidgetManagerComponent::FindWidget(const FName& InKey) const
-{
-	return Cast<T>(FindWidget(InKey));
 }
