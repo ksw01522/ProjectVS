@@ -261,14 +261,19 @@ float UVSAbility::GetCooldownTime(const FGameplayAbilitySpecHandle Handle, const
 	UAbilityDataManager* DataManager = UAbilityDataManager::GetAbilityDataManager();
 	
 #if WITH_EDITOR
-	if(DataManager==nullptr)
+	if(DataManager == nullptr)
 	{
-		return CoolTime[CurrentLevel - 1];
+		return CoolTime[CurrentLevel];
 	}
 #endif
 	
 	bool bResult;
 	return DataManager->FindAbilityData(CoolTimeTag, bResult, CurrentLevel);
+}
+
+void UVSAbility::SetCooldownTag(const FGameplayTag& NewTag)
+{
+	CoolTimeTag = NewTag;
 }
 
 const FGameplayTagContainer* UVSAbility::GetCooldownTags() const

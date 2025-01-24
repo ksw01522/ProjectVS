@@ -8,4 +8,5 @@ UInitAttriuteEffect_Monster::UInitAttriuteEffect_Monster()
 {
 	ADD_ATTRIBUTE_MODIFER(UAttributeSet_Monster, BountyEXP)
 	ADD_ATTRIBUTE_MODIFER(UAttributeSet_Monster, BountyGold)
+	ADD_ATTRIBUTE_MODIFER(UAttributeSet_Monster, BodyTackleDamage)
 }

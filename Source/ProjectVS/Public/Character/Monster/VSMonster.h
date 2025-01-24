@@ -57,4 +57,8 @@ public:
 
 	float GetBountyEXP() const;
 	float GetBountyGold() const;
+
+private:
+	UFUNCTION()
+	void OnCharaterHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 };

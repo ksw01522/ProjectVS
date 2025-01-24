@@ -134,7 +134,12 @@ protected:
 private:
 	float GetCooldownTime(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo) const;
 
+protected:
+	void SetCooldownTag(const FGameplayTag& NewTag);
+
 public:
+	FGameplayTag GetCooldownTag() const {return CoolTimeTag;}
+
 	virtual const FGameplayTagContainer* GetCooldownTags() const override;
 	virtual void ApplyCooldown(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) const override;
 

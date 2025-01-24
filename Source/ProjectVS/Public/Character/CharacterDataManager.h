@@ -31,6 +31,9 @@ struct FMonsterDataStruct : public FTableRowBase
 
 	UPROPERTY(EditAnywhere)
 	float BountyGold = 0;
+
+	UPROPERTY(EditAnywhere)
+	float BodyTackleDamage = 0;
 };
 
 struct FLoadedMonsterDataStruct

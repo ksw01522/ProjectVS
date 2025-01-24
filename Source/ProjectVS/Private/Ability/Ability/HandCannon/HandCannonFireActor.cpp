@@ -60,7 +60,6 @@ void AHandCannonFireActor::Tick(float DeltaTime)
 
 void AHandCannonFireActor::OnFinishedFire()
 {
-	LOG_ERROR(TEXT("On Finished HandCannon Fire"));
 
 	Destroy();
 }

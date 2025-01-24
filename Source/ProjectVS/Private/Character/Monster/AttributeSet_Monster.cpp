@@ -9,6 +9,8 @@ void UAttributeSet_Monster::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 {
 	DOREPLIFETIME_CONDITION_NOTIFY(UAttributeSet_Monster, BountyEXP, COND_None, REPNOTIFY_OnChanged);
 	DOREPLIFETIME_CONDITION_NOTIFY(UAttributeSet_Monster, BountyGold, COND_None, REPNOTIFY_OnChanged);
+	DOREPLIFETIME_CONDITION_NOTIFY(UAttributeSet_Monster, BodyTackleDamage, COND_None, REPNOTIFY_OnChanged);
+
 }
 
 void UAttributeSet_Monster::OnRep_BountyEXP(const FGameplayAttributeData& OldBountyEXP)
@@ -19,4 +21,10 @@ void UAttributeSet_Monster::OnRep_BountyEXP(const FGameplayAttributeData& OldBou
 void UAttributeSet_Monster::OnRep_BountyGold(const FGameplayAttributeData& OldBountyGold)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UAttributeSet_Monster, BountyGold, OldBountyGold);
+}
+
+void UAttributeSet_Monster::OnRep_BodyTackleDamage(const FGameplayAttributeData& OldBodyTackleDamage)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UAttributeSet_Monster, BodyTackleDamage, OldBodyTackleDamage);
+
 }

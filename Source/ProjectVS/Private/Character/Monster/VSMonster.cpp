@@ -12,13 +12,17 @@
 #include "ProjectVS.h"
 #include "Components/CapsuleComponent.h"
 #include "Character/Monster/MonsterWorldManager.h"
+#include "PaperFlipbookComponent.h"
 #include "PlayGameState.h"
+#include "Ability/Ability/Enemy/VSAbility_BodyTackle.h"
 
 // Sets default values
 AVSMonster::AVSMonster()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
+	GetCapsuleComponent()->SetNotifyRigidBodyCollision(true);
 
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->bSnapToPlaneAtStart = false;
@@ -33,7 +37,7 @@ AVSMonster::AVSMonster()
 	ATS_Monster = CreateDefaultSubobject<UAttributeSet_Monster>("AttributeSet_Monster");
 	AbilitySystem->AddSpawnedAttribute(ATS_Monster);
 
-	
+	GetSprite()->SetNotifyRigidBodyCollision(false);
 }
 
 // Called when the game starts or when spawned
@@ -42,6 +46,8 @@ void AVSMonster::BeginPlay()
 	Super::BeginPlay();
 	
 	InitializeAbilitySystem();
+
+	GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &AVSMonster::OnCharaterHit);
 }
 
 void AVSMonster::BeginDestroy()
@@ -66,12 +72,12 @@ void AVSMonster::InitializeAbilitySystem()
 	AbilitySystem->RegisterGameplayTagEvent(FGameplayTag::RequestGameplayTag("State.Dead")).AddUObject(this, &AVSMonster::OnDeadTagAdded);
 
 	RegisterAbilitySystem(AbilitySystem);
+
+	AbilitySystem->GiveAbility(FGameplayAbilitySpec(UVSAbility_BodyTackle::StaticClass(), 1, -1, this));
 }
 
 void AVSMonster::OnHPChanged(const FOnAttributeChangeData& InData)
 {
-	LOG_ERROR(TEXT("%s HP Change to {%.1f}"), *GetName(), InData.NewValue);
-
 	if (InData.NewValue <= 0)
 	{
 		AbilitySystem->AddLooseGameplayTag(FGameplayTag::RequestGameplayTag("State.Dead"));
@@ -112,5 +118,15 @@ float AVSMonster::GetBountyEXP() const
 float AVSMonster::GetBountyGold() const
 {
 	return ATS_Monster->GetBountyGold();;
+}
+
+void AVSMonster::OnCharaterHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+	if(OtherActor == nullptr) return;
+	
+
+	FGameplayEventData EventData;
+	EventData.Target = OtherActor;
+	AbilitySystem->HandleGameplayEvent(FGameplayTag::RequestGameplayTag("CommonEvent.Hit"), &EventData);
 }
 

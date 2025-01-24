@@ -161,6 +161,8 @@ void AVSPlayerState::InitializeASC()
 
 void AVSPlayerState::OnHPChanged(const FOnAttributeChangeData& HPData)
 {
+	LOG_ERROR(TEXT("Player HP On Changed %.1f -> %.1f"), HPData.OldValue, HPData.NewValue);
+
 	if (HPData.NewValue <= 0 && ASC->GetTagCount(FGameplayTag::RequestGameplayTag("State.Dead")) <= 0)
 	{
 		AProjectVSGameMode* VSGameMode = GetWorld()->GetAuthGameMode<AProjectVSGameMode>();

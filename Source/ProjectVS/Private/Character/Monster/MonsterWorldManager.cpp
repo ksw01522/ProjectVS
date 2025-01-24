@@ -78,6 +78,7 @@ TArray<AVSMonster*> UMonsterWorldManager::SpawnMonseters(const FName& InCode, fl
 
 	float BountyEXP = FindedData->BountyEXP;
 	float BountyGold = FindedData->BountyGold;
+	float BodyTackleDamage = FindedData->BodyTackleDamage;
 
 	for (const auto& SpawnLocation : SpawnLocations)
 	{
@@ -102,7 +103,7 @@ TArray<AVSMonster*> UMonsterWorldManager::SpawnMonseters(const FName& InCode, fl
 			SpecHandle.Data->SetSetByCallerMagnitude(UAttributeSet_Default::GetMoveSpeedName(), MoveSpeed);
 			SpecHandle.Data->SetSetByCallerMagnitude(UAttributeSet_Monster::GetBountyEXPName(), BountyEXP);
 			SpecHandle.Data->SetSetByCallerMagnitude(UAttributeSet_Monster::GetBountyGoldName(), BountyGold);
-
+			SpecHandle.Data->SetSetByCallerMagnitude(UAttributeSet_Monster::GetBodyTackleDamageName(), BodyTackleDamage);
 
 			ASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data);
 		}

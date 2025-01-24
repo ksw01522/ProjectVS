@@ -8,6 +8,10 @@
 
 #include "Engine/AssetManager.h"
 
+#if WITH_EDITOR
+	#define MUST_DEBUG false
+#endif
+
 UAbilityDataManager* UAbilityDataManager::ADMInstance = nullptr;
 
 UAbilityDataManager* UAbilityDataManager::GetAbilityDataManager()
@@ -46,8 +50,9 @@ void UAbilityDataManager::CompleteLoadAbilities()
 		AbilityArray.Add(TempCode, LoadedClass);
 	}
 
-
-	LOG_ERROR(TEXT("LoadedAbility Count = %d"), AbilityArray.Num());
+#if WITH_EDITOR
+	if(MUST_DEBUG) LOG_ERROR(TEXT("LoadedAbility Count = %d"), AbilityArray.Num());
+#endif
 }
 
 TSubclassOf<UVSAbility> UAbilityDataManager::FindAbility(FName Code) const
@@ -106,7 +111,10 @@ float UAbilityDataManager::FindAbilityData(const FGameplayTag& DataTag, bool& bR
 	}
 
 	bResult = true;
-	LOG_INFO(TEXT("Finded {%s}, Level : %d, Value : %.1f"), *DataTag.GetTagName().ToString(), Level, RefArray[Level]);
+
+#if WITH_EDITOR
+	if(MUST_DEBUG) LOG_INFO(TEXT("Finded {%s}, Level : %d, Value : %.1f"), *DataTag.GetTagName().ToString(), Level, RefArray[Level]);
+#endif
 	return RefArray[Level];
 }
 

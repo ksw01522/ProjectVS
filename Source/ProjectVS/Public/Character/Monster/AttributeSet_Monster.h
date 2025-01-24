@@ -39,6 +39,15 @@ private:
 public:
 	ATTRIBUTE_ACCESSORS(UAttributeSet_Monster, BountyGold)
 
+private:
+	UPROPERTY(ReplicatedUsing = OnRep_BodyTackleDamage)
+	FGameplayAttributeData BodyTackleDamage;
+
+	UFUNCTION()
+	void OnRep_BodyTackleDamage(const FGameplayAttributeData& OldBodyTackleDamage);
+public:
+	ATTRIBUTE_ACCESSORS(UAttributeSet_Monster, BodyTackleDamage)
+
 };
 
 #undef ATTRIBUTE_CATEGORY

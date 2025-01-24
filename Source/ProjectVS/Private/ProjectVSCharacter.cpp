@@ -26,6 +26,7 @@ AProjectVSCharacter::AProjectVSCharacter()
 {
 	// Set size for player capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
+	GetCapsuleComponent()->SetNotifyRigidBodyCollision(true);
 
 	// Create a camera boom...
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
@@ -45,7 +46,7 @@ AProjectVSCharacter::AProjectVSCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = true;
 
-
+	GetSprite()->SetNotifyRigidBodyCollision(false);
 }
 
 void AProjectVSCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
