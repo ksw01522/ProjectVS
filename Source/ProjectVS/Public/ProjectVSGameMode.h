@@ -14,8 +14,13 @@ class AProjectVSGameMode : public AGameModeBase
 public:
 	AProjectVSGameMode(const FObjectInitializer& ObjectInitializer);
 
-private:
+protected:
+	virtual void InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) override;
+
 	virtual void OnPostLogin(AController* NewPlayer) override;
+
+private:
+
 
 	void StartNewStage();
 
@@ -45,6 +50,29 @@ private:
 public:
 	void OnPlayerDead(class AVSPlayerState* InPlayer);
 	void OnGameOver();
+
+private:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<class AVSPaperTileMapActor> TileActorClass;
+
+	FVector TileBoxExtent;
+
+	TMap<int, TMap<int, TWeakObjectPtr<AVSPaperTileMapActor>>> Map_WeakTiles;
+
+	FTimerHandle TimerHandle_CheckTile;
+
+private:
+
+	void SpawnAroundTiles(int X, int Y);
+
+	AVSPaperTileMapActor* SpawnTile(int X, int Y);
+
+	void SetWeakTile(int X, int Y, AVSPaperTileMapActor* InTile);
+
+
+
+public:
+	void CheckUnlimitedTiles();
 };
 
 

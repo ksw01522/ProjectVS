@@ -51,6 +51,9 @@ void UAbilityEditorSubsystem::ReadAbilityDataCSV()
 
 		FString FilePath = RootFolderPath + DataFileName;
 
+		FString DataCategory = DataFileName.Left(DataFileName.Len() - 4);
+
+
 		if (!FPlatformFileManager::Get().GetPlatformFile().FileExists(*FilePath))
 		{
 			LOG_ERROR(TEXT("Not Exist Ability Data File : %s"), *FilePath);
@@ -71,13 +74,14 @@ void UAbilityEditorSubsystem::ReadAbilityDataCSV()
 			
 			FName KeyName = FName(AbilityData[0]);
 			TArray<float> ValueArray;	
-			
+			ValueArray.Add(0);
+
 			for (int j = 1; j < AbilityData.Num(); j++)
 			{
 				ValueArray.Add(FCString::Atof(*AbilityData[j]));
 			}
 			
-			FName TempKey = FName(DataFileName.Left(DataFileName.Len() - 4));
+			FName TempKey = FName(DataCategory);
 
 			TMap<FName, TArray<float>>& FindedMap = DataMap.FindOrAdd(TempKey);
 			if (FindedMap.Find(KeyName) != nullptr)
@@ -86,7 +90,7 @@ void UAbilityEditorSubsystem::ReadAbilityDataCSV()
 				continue;
 			}
 
-			FindedMap.FindOrAdd(KeyName) = ValueArray;
+			FindedMap.FindOrAdd(FName(DataCategory + "." + AbilityData[0])) = ValueArray;
 		}
 	}
 }

@@ -1,3 +1,3 @@
-Type,X,1,2,3,4,5,6,7,8
-AttributeBonus.Gunpowder,0,10,20,30,40,50,60,70,80
-AttributeBonus.AgileBelt,0,1,2,3,4,5,6,7,8
+Name/Level,1,2,3,4,5,6,7,8
+Gunpowder,10,20,30,40,50,60,70,80
+AgileBelt,5,2,3,4,5,6,7,8

@@ -67,7 +67,15 @@ void USpawnRule_RandomInDonut::CreateSpawnLocations(TArray<FVector>& OutLocation
 
 	float IntervalDegree = FMath::Min((float)360 / (float)SpawnData.Count, 10.0);
 
-	FVector SpawnCenterLocation = InWorld.GetFirstPlayerController()->GetPawn()->GetActorLocation();
+	FVector SpawnCenterLocation;
+	
+	if (APlayerController* FirstController = InWorld.GetFirstPlayerController())
+	{
+		if (APawn* FirstPawn = FirstController->GetPawn())
+		{
+			SpawnCenterLocation = FirstPawn->GetActorLocation();
+		}
+	}
 
 	for (int i = 0; i < SpawnData.Count; i++)
 	{

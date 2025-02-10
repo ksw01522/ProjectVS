@@ -59,8 +59,6 @@ protected:
 
 public:
 	virtual FGenericTeamId GetGenericTeamId() const override;
-
-	
 };
 
 

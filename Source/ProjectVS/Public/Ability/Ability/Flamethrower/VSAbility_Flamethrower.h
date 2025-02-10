@@ -9,9 +9,61 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(Abstract)
 class PROJECTVS_API UVSAbility_Flamethrower : public UVSAbility
 {
 	GENERATED_BODY()
 	
+public:
+	UVSAbility_Flamethrower(const FObjectInitializer& ObjectInitializer);
+
+protected:
+	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
+#if WITH_EDITOR
+protected:
+	virtual void PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent) override;
+
+	virtual void CreateAbilityDataToSave(TMap<FName, TArray<float>>& InMap) const override;
+
+	virtual void NativeLoadDataFromDataManager() override; protected:
+	
+	//virtual EDataValidationResult IsDataValid(class FDataValidationContext& Context) const override;
+
+#endif
+	
+private:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Flame", meta = (AllowPrivateAccess = "true", DisplayThumbnail = "true"))
+	TSubclassOf<class AFlamethrowerActor> FlamethrowerActorClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Flame", meta = (Categories = "Damage"))
+	FGameplayTag FlameDamageTag;
+
+#if WITH_EDITORONLY_DATA
+	UPROPERTY(EditDefaultsOnly, Category = "Flame")
+	TArray<float> FlameDamage;
+#endif
+
+	float GetFlameDamage(const FGameplayAbilitySpecHandle Handle, class UAbilitySystemComponent* InASC) const;
+
+
+	UPROPERTY(EditDefaultsOnly, Category = "Flame", meta = (Categories = "Scale"))
+	FGameplayTag FlameScaleTag;
+
+#if WITH_EDITORONLY_DATA
+	UPROPERTY(EditDefaultsOnly, Category = "Flame")
+	TArray<float> FlameScale;
+#endif
+
+	float GetFlameScale(const FGameplayAbilitySpecHandle Handle, class UAbilitySystemComponent* InASC) const;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Flame", meta = (Categories = "Duration"))
+	FGameplayTag FlameDurationTag;
+
+#if WITH_EDITORONLY_DATA
+	UPROPERTY(EditDefaultsOnly, Category = "Flame")
+	TArray<float> FlameDuration;
+#endif
+
+	float GetFlameDuration(const FGameplayAbilitySpecHandle Handle, class UAbilitySystemComponent* InASC) const;
+
 };

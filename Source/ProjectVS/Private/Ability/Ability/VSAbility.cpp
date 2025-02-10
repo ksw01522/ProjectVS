@@ -232,8 +232,6 @@ void UVSAbility::PostCDOCompiled(const FPostCDOCompiledContext& Context)
 {
 	Super::PostCDOCompiled(Context);
 
-
-	LOG_ERROR(TEXT("Call PostCDOCompiled"));
 }
 
 EDataValidationResult UVSAbility::IsDataValid(FDataValidationContext& Context) const

@@ -113,7 +113,7 @@ float UVSAbility_HandCannon::GetFireDamage(const FGameplayAbilitySpecHandle Hand
 #if WITH_EDITOR
 	if (ADM == nullptr)
 	{
-		ReturnDamage = FireDamage[AbLevel-1];
+		ReturnDamage = FireDamage[AbLevel];
 	}
 #endif
 
@@ -160,7 +160,7 @@ float UVSAbility_HandCannon::GetFireScale(const FGameplayAbilitySpecHandle Handl
 #if WITH_EDITOR
 	if (ADM == nullptr)
 	{
-		if(FireScale.IsValidIndex(AbLevel - 1)) { RangeRate = FireScale[AbLevel-1]; }
+		if(FireScale.IsValidIndex(AbLevel)) { RangeRate = FireScale[AbLevel]; }
 	}
 #endif
 
@@ -202,7 +202,6 @@ int UVSAbility_HandCannon::GetFireCount(const FGameplayAbilitySpecHandle Handle,
 #if WITH_EDITOR
 	if (ADM == nullptr)
 	{
-		LOG_ERROR(TEXT("setset"));
 		if(FireCount.IsValidIndex(AbLevel)) { ReturnFireCount = FireCount[AbLevel]; }
 	}
 #endif

@@ -11,7 +11,7 @@ public class ProjectVSTarget : TargetRules
 		DefaultBuildSettings = BuildSettingsVersion.V5;
 		IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_4;
 		
-		ExtraModuleNames.AddRange(new string[] { "ProjectVS", "GameplayAbilities", "PaperZD"});
+		ExtraModuleNames.AddRange(new string[] { "ProjectVS", "GameplayAbilities", "PaperZD", "Paper2D"});
 		
 	}
 }

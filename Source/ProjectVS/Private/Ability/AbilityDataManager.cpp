@@ -9,7 +9,7 @@
 #include "Engine/AssetManager.h"
 
 #if WITH_EDITOR
-	#define MUST_DEBUG false
+	#define MUST_DEBUG true
 #endif
 
 UAbilityDataManager* UAbilityDataManager::ADMInstance = nullptr;
@@ -146,11 +146,19 @@ void UAbilityDataManager::ReadAbilityDataCSV()
 	//	LOG_ERROR(TEXT("%s"), *FileName);
 	//}
 
+	FString LoadResult;
+	FString DataFilePath;
+	FString DataCategory;
+
 	for (const auto& DataFileName : DataFileNames)
 	{
-		FString LoadResult = "";
-		FString DataFilePath = CSVFolderPath + DataFileName;
-
+		DataFilePath = CSVFolderPath + DataFileName;
+		
+		DataCategory = DataFileName.Left(DataFileName.Len() - 4);
+		
+		#if WITH_EDITOR
+		if(MUST_DEBUG) LOG_ERROR(TEXT("DataCategory = %s"), *DataCategory);
+		#endif
 		FFileHelper::LoadFileToString(LoadResult, *DataFilePath);
 
 		TArray<FString> ParseLines;
@@ -167,9 +175,12 @@ void UAbilityDataManager::ReadAbilityDataCSV()
 
 			int DataNum = AbilityData.Num();
 
+			FName TempMapKey = FName(DataCategory + "." + AbilityData[0]);
+			DataMap.FindOrAdd(TempMapKey).Add(0);
+
 			for (int j = 1; j < DataNum; j++)
 			{
-				DataMap.FindOrAdd(FName(AbilityData[0])).Add( FCString::Atof(*AbilityData[j]));
+				DataMap.FindOrAdd(TempMapKey).Add(FCString::Atof(*AbilityData[j]));
 			}
 		}
 	}

@@ -54,6 +54,10 @@ void UAttributeSet_Default::PostAttributeChange(const FGameplayAttribute& Attrib
     {
         AdjustAttributeForMaxChange(HP, MaxHP, OldValue, NewValue, GetHPAttribute());
     }
+
+#if WITH_EDITOR
+    //if(Attribute == GetHPAttribute())LOG_ERROR(TEXT("%s HP : %.1f -> %.1f"), *GetOwningAbilitySystemComponent()->GetAvatarActor()->GetName(), OldValue, NewValue);
+#endif
 }
 
 void UAttributeSet_Default::PreAttributeBaseChange(const FGameplayAttribute& Attribute, float& NewValue) const

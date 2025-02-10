@@ -21,6 +21,8 @@
 #include "EnhancedInputSubsystems.h"
 #include "UserSettings/EnhancedInputUserSettings.h"
 #include "PaperFlipbookComponent.h"
+#include "Tile/VSPaperTileMapActor.h"
+#include "Engine/OverlapResult.h"
 
 AProjectVSCharacter::AProjectVSCharacter()
 {
@@ -78,15 +80,11 @@ void AProjectVSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 void AProjectVSCharacter::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
-
-
 }
 
 void AProjectVSCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
-
-	if (GetLocalRole() != ENetRole::ROLE_Authority) return;
 
 	if (APlayerController* PlayerController = Cast<APlayerController>(NewController))
 	{
@@ -97,7 +95,6 @@ void AProjectVSCharacter::PossessedBy(AController* NewController)
 		RegisterAbilitySystem(PlayerASC);
 
 		PlayerASC->InitAbilityActorInfo(VSState, this);
-
 	}
 }
 
@@ -105,8 +102,11 @@ void AProjectVSCharacter::UnPossessed()
 {
 	UnregisterAbilitySystem();
 
+
 	Super::UnPossessed();
 }
+	
+
 
 
 
@@ -120,7 +120,6 @@ FGenericTeamId AProjectVSCharacter::GetGenericTeamId() const
 
 	return FGenericTeamId::NoTeam;
 }
-
 
 
 void AProjectVSCharacter::Move(const FInputActionValue& Value)

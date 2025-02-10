@@ -10,6 +10,6 @@ public class ProjectVSEditorTarget : TargetRules
 		Type = TargetType.Editor;
 		DefaultBuildSettings = BuildSettingsVersion.V5;
 		IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_4;
-        ExtraModuleNames.AddRange(new string[] { "ProjectVS", "GameplayAbilities", "AbilityTesterEditor", "PaperZD"});
+        ExtraModuleNames.AddRange(new string[] { "ProjectVS", "GameplayAbilities", "AbilityTesterEditor", "PaperZD", "Paper2D"});
     }
 }

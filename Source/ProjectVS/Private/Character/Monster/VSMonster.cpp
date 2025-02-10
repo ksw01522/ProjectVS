@@ -128,5 +128,12 @@ void AVSMonster::OnCharaterHit(UPrimitiveComponent* HitComponent, AActor* OtherA
 	FGameplayEventData EventData;
 	EventData.Target = OtherActor;
 	AbilitySystem->HandleGameplayEvent(FGameplayTag::RequestGameplayTag("CommonEvent.Hit"), &EventData);
+
+	FVector NegativeDist = GetActorLocation() - OtherActor->GetActorLocation();
+	NegativeDist.Z = 0;
+
+	NegativeDist.Normalize();
+
+	AddActorWorldOffset(NegativeDist);
 }
 

@@ -50,6 +50,8 @@ protected:
 private:
 	float GetValue(int InAbilityLevel) const;
 
+	
+
 protected:
 	virtual FText GetDescriptionText_Implementation() const override;
 
