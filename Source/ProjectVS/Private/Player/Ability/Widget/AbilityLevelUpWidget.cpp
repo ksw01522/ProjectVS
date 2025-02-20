@@ -15,6 +15,7 @@
 #include "ProjectVS.h"
 #include "VSPlayerState.h"
 #include "Components/RichTextBlock.h"
+#include "Player/VSPlayerState.h"
 
 UAbilityLevelUpWidget::UAbilityLevelUpWidget(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -74,11 +75,16 @@ void UAbilityLevelUpWidget::UpdateAbilityLevelUpWidget()
 		
 	const UVSAbility* AbilityCDO = StaticCast<UVSAbility*>(AbilityClass.GetDefaultObject());
 
+	AVSPlayerState* VSPlayerState = GetOwningPlayerState<AVSPlayerState>();
+	check(VSPlayerState)
+
+	UAbilityBookComponent* AbilityBook = VSPlayerState->GetAbilityBookComponent();
+
 	if (AbilityCDO != nullptr)
 	{
 		SetIcon(AbilityCDO->GetAbilityIcon());
 		SetNameText(AbilityCDO->GetAbilityName());
-		SetDescriptionText(AbilityCDO->GetLeveUpDescriptionText(CurrentLevel, TargetLevel));
+		SetDescriptionText(AbilityCDO->GetLeveUpDescriptionText(AbilityBook, CurrentLevel, TargetLevel));
 		SetLevelText(TargetLevel);
 	}
 	else
@@ -137,7 +143,7 @@ void UAbilityLevelUpWidget::OnSelectedLevelUp(AProjectVSPlayerController* Player
 	
 	UAbilityBookComponent* BookSystem = PlayerController->GetPlayerState<AVSPlayerState>()->GetAbilityBookComponent();
 
-	BookSystem->SetOrAddPage(AbilityCode, TargetLevel);
+	BookSystem->SetOrAddPageByLevelUp(AbilityCode, TargetLevel);
 
 	if (OnSelectedLevelUpDelegate.IsBound())
 	{

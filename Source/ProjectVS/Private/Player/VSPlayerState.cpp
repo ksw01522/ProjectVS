@@ -146,12 +146,9 @@ void AVSPlayerState::InitializeASC()
 
 		TArray<TSubclassOf<UVSAbility>> Abilities = CharacterData->GetAbilities();
 
-		for (auto& Ability : Abilities)
+		for (auto& AbilityClass : Abilities)
 		{
-			FGameplayAbilitySpec* AbilitySpec = new FGameplayAbilitySpec(Ability);
-			ASC->GiveAbility(*AbilitySpec);
-
-			delete AbilitySpec;
+			AbilityBook->SetOrAddPage(AbilityClass.GetDefaultObject()->GetAbilityCode(), 1, true);
 		}
 	}
 

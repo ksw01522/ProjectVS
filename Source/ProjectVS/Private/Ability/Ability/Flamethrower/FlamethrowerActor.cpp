@@ -14,19 +14,14 @@
 #include "PaperFlipbook.h"
 
 // Sets default values
-AFlamethrowerActor::AFlamethrowerActor()
+AFlamethrowerActor::AFlamethrowerActor(const FObjectInitializer& ObjectInitiailzer)
+		: Super(ObjectInitiailzer)
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	PivotRoot = CreateDefaultSubobject<USceneComponent>("Pivot");
-	SetRootComponent(PivotRoot);
-	PivotRoot->SetUsingAbsoluteRotation(true);
-	PivotRoot->SetUsingAbsoluteScale(true);
-
-	FlameFlipbook = CreateDefaultSubobject<UPaperFlipbookComponent>("FlameFlipbook");
-	FlameFlipbook->SetupAttachment(PivotRoot);
-	FlameFlipbook->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetFlipbookComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetRootComponent()->SetUsingAbsoluteRotation(true);
 }
 
 // Called when the game starts or when spawned
@@ -47,6 +42,8 @@ void AFlamethrowerActor::FlameStart()
 
 	TimerManager.SetTimer(TimerHandle_FlameEnd, this, &AFlamethrowerActor::FlameEnd, FlameDuration, false);
 
+	UPaperFlipbookComponent* FlameFlipbook = GetFlipbookComponent();
+
 	FlameFlipbook->SetFlipbook(Flipbook_Start);
 	FlameFlipbook->SetLooping(false);
 
@@ -60,6 +57,8 @@ void AFlamethrowerActor::FlameStart()
 
 void AFlamethrowerActor::OnFinishedFlameStartAnimation()
 {
+	UPaperFlipbookComponent* FlameFlipbook = GetFlipbookComponent();
+
 	FlameFlipbook->OnFinishedPlaying.RemoveDynamic(this, &AFlamethrowerActor::OnFinishedFlameStartAnimation);
 
 	FlameFlipbook->SetFlipbook(Flipbook_Loop);
@@ -69,7 +68,11 @@ void AFlamethrowerActor::OnFinishedFlameStartAnimation()
 
 void AFlamethrowerActor::FlameTick()
 {
-	if(!DamageEffectSpecHandle.IsValid()) return;
+	FGameplayEffectSpecHandle DamageEffectSpecHandle = FindEffectSpec("FlameDamage");
+
+	check(DamageEffectSpecHandle.IsValid())
+
+	UPaperFlipbookComponent* FlameFlipbook = GetFlipbookComponent();
 
 	TArray<FOverlapResult> OverlapResults;
 	
@@ -93,8 +96,6 @@ void AFlamethrowerActor::FlameTick()
 			if (Attitude != ETeamAttitude::Hostile) return;
 
 			OtherASC->ApplyGameplayEffectSpecToSelf(*DamageEffectSpecHandle.Data);
-
-			LOG_ERROR(TEXT("%s"), *OverlappedActor->GetName());
 		}
 	}
 
@@ -104,6 +105,8 @@ void AFlamethrowerActor::FlameTick()
 void AFlamethrowerActor::FlameEnd()
 {
 	GetWorld()->GetTimerManager().ClearTimer(TimerHandle_FlameTick);
+
+	UPaperFlipbookComponent* FlameFlipbook = GetFlipbookComponent();
 
 	if (FlameFlipbook)
 	{

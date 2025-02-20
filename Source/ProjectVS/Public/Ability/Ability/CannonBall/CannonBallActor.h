@@ -3,18 +3,17 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
-#include "Ability/Ability/VSEffectSpecStorage.h"
+#include "Ability/Ability/VSAbilityEffecter.h"
 #include "CannonBallActor.generated.h"
 
 UCLASS(Abstract)
-class PROJECTVS_API ACannonBallActor : public AActor, public IVSEffectSpecStorage
+class PROJECTVS_API ACannonBallActor : public AVSAbilityEffecter
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
-	ACannonBallActor();
+	ACannonBallActor(const FObjectInitializer& ObjectInitializer);
 
 protected:
 	// Called when the game starts or when spawned
@@ -26,11 +25,6 @@ public:
 
 
 private:
-	UPROPERTY(Category = Topspin, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class USceneComponent> PivotRoot;
-
-	UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UPaperFlipbookComponent> Sprite;
 
 	UPROPERTY(Category = Flipbook, EditAnywhere, meta = (DisplayThumbnail = "true"))
 	TObjectPtr<class UPaperFlipbook> Flipbook_Explosion;

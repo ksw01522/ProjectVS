@@ -3,8 +3,9 @@ Type,Value
 AgileBelt,5
 HealthArmor,5
 SpeedShoes,5
-HandCannonFire,8
-Gunpowder,8
-Topspin,8
+HandCannonFire,3
+Gunpowder,5
+Topspin,3
 Flamethrower,8
 CannonBall,8
+Gundance,1

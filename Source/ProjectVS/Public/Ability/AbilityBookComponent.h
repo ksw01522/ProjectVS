@@ -7,6 +7,10 @@
 #include "GameplayAbilitySpecHandle.h"
 #include "AbilityBookComponent.generated.h"
 
+class UAbilityBookComponent;
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpdateAbilityBook, UAbilityBookComponent*, InBook);
+
+
 enum class EVSAbilityType : uint8;
 
 USTRUCT()
@@ -27,7 +31,7 @@ private:
 
 	FGameplayAbilitySpecHandle Handle;
 
-	int Level;
+	int Level = 1;
 
 public:
 	FName GetAbilityCode() const { return Code; }
@@ -82,6 +86,12 @@ private:
 
 	TWeakObjectPtr<class UAbilitySystemComponent> WeakASC;
 
+	UPROPERTY(BlueprintAssignable, VisibleAnywhere, BlueprintCallable)
+	mutable FOnUpdateAbilityBook OnUpdateBookDelegate;
+
+public:
+	FOnUpdateAbilityBook& GetOnUpdateBookDelegate() const { return OnUpdateBookDelegate; }
+
 private:
 	void SetAbilityPageSize(EVSAbilityType Type, int NewSize);
 
@@ -94,6 +104,8 @@ private:
 	void BanAbility(const TArray<FName>& InCodes);
 
 public:
+	void SetOrAddPageByLevelUp(FName InCode, int NewLevel);
+
 	void SetOrAddPage(FName InCode, int NewLevel, bool bForced = false);
 
 	int GetAbilityLevel(const FName& InCode) const;
@@ -110,9 +122,11 @@ public:
 	bool IsBookFullPage(EVSAbilityType Type) const;
 
 	FAbilityPage* FindAbilityPage(const FName& InCode) const;
-	FAbilityPage* FindAbilityPage(const FName& InCode, enum class EVSAbilityType InType) const;
+	FAbilityPage* FindAbilityPage(const FName& InCode, EVSAbilityType InType) const;
 
 	void GetLevelUpTargetArray(TArray<FAbilityLevelUpTargetInfo>& OutResult, int Count, int TargetLevel = 1) const;
 
 	void InitializeAddableAbilities(const FName& InCharacterName);
+
+	void GetAbilityPageArray(TArray<const FAbilityPage*>& OutPage, EVSAbilityType InType) const;
 };

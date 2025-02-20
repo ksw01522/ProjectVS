@@ -26,7 +26,7 @@ UVSAbility_BodyTackle::UVSAbility_BodyTackle(const FObjectInitializer& ObjectIni
 	AbilityTriggers.Add(TackleTrigger);
 }
 
-void UVSAbility_BodyTackle::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
+void UVSAbility_BodyTackle::ActivateAbility_CPP(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	if (TriggerEventData == nullptr)
 	{
@@ -74,7 +74,7 @@ void UVSAbility_BodyTackle::ApplyCooldown(const FGameplayAbilitySpecHandle Handl
 	FActiveGameplayEffectHandle ActiveHandle = ApplyGameplayEffectSpecToOwner(Handle, ActorInfo, ActivationInfo, SpecHandle);
 }
 
-bool UVSAbility_BodyTackle::CanSetOrAddInBook(const UAbilityBookComponent& InBook, int NewLevel) const
+bool UVSAbility_BodyTackle::CanSetOrAddInBook_Implementation(const UAbilityBookComponent* InBook, int NewLevel) const
 {
 	return false;
 }

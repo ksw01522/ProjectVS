@@ -23,13 +23,14 @@ protected:
 	virtual void Tick(float DeltaSeconds) override;
 
 private:
-private:
 	UPROPERTY(VisibleAnywhere, Category = "Character", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class USceneComponent> SpritePivot;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Character, meta = (AllowPrivateAccess = "true"))
 	bool bLookRight;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Widget, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UWidgetComponent> HPBarWidget;
 
 //AbilitySystem
 private:
@@ -41,6 +42,8 @@ public:
 	void RegisterAbilitySystem(UAbilitySystemComponent* NewASC);
 	void UnregisterAbilitySystem();
 
+	USceneComponent* GetSpritePivot() const {return SpritePivot;}
+
 //Move Speed
 private:
 	FDelegateHandle OnMoveSpeedChangedHandle;
@@ -50,10 +53,19 @@ private:
 protected:
 	virtual void SetMoveSpeed(float NewSpeed);
 
+private:
+	FDelegateHandle OnChangedHPHandle;
+	FDelegateHandle OnChangedMaxHPHandle;
+
+	virtual void OnChangedHP(const struct FOnAttributeChangeData& InData);
+	virtual void OnChangedMaxHP(const struct FOnAttributeChangeData& InData);
+
+
 public:
 	virtual FGenericTeamId GetGenericTeamId() const override {return FGenericTeamId::NoTeam;}
 
 	void SetLookRight(bool NewState);
 
+	void UpdateHPBarWidget();
 
 };

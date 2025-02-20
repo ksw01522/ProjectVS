@@ -17,33 +17,22 @@ UVSAbility_Flamethrower::UVSAbility_Flamethrower(const FObjectInitializer& Objec
 	SetAbilityType(EVSAbilityType::Active);
 }
 
-void UVSAbility_Flamethrower::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
+void UVSAbility_Flamethrower::ActivateAbility_CPP(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	UAbilitySystemComponent* InASC = ActorInfo->AbilitySystemComponent.Get();
-	if (InASC == nullptr)
-	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
-		return;
-	}
-
 	AActor* InAvatarActor = ActorInfo->AvatarActor.Get();
-	if (InAvatarActor == nullptr)
+
+	if (InASC == nullptr || InAvatarActor == nullptr || !CommitAbilityCooldown(Handle, ActorInfo, ActivationInfo, false))
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
 
-	if (!CommitAbilityCooldown(Handle, ActorInfo, ActivationInfo, false))
-	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
-		return;
-	}
+	int AbLevel = GetAbilityLevel(Handle, ActorInfo);
 
-	float FinalFlameDamage = GetFlameDamage(Handle, InASC);
-	LOG_ERROR(TEXT("Flame Damage = %.1f"), FinalFlameDamage);
-
-	float FinalFlameScale = GetFlameScale(Handle, InASC);
-	float FinalFlameDuration = GetFlameDuration(Handle, InASC);
+	float FinalFlameDamage = GetFlameDamage(AbLevel, InASC);
+	float FinalFlameScale = GetFlameScale(AbLevel, InASC);
+	float FinalFlameDuration = GetFlameDuration(AbLevel, InASC);
 
 	if (FinalFlameDuration <= 0)
 	{
@@ -63,7 +52,7 @@ void UVSAbility_Flamethrower::ActivateAbility(const FGameplayAbilitySpecHandle H
 		FGameplayEffectSpecHandle NewDamageEffectSpecHandle = MakeOutgoingGameplayEffectSpec(Handle, ActorInfo, ActivationInfo, UDamageEffect::StaticClass(), 1);
 		NewDamageEffectSpecHandle.Data->SetSetByCallerMagnitude(UAttributeSet_Default::GetDamageName(), FinalFlameDamage * 0.25);
 
-		NewFlamethrowerActor->SetDamageEffectSpecHandle(NewDamageEffectSpecHandle);
+		NewFlamethrowerActor->AddEffectSpec("FlameDamage", NewDamageEffectSpecHandle);
 
 		NewFlamethrowerActor->SetFlameDuration(FinalFlameDuration);
 
@@ -119,25 +108,16 @@ void UVSAbility_Flamethrower::NativeLoadDataFromDataManager()
 
 #endif
 
-float UVSAbility_Flamethrower::GetFlameDamage(const FGameplayAbilitySpecHandle Handle, UAbilitySystemComponent* InASC) const
+float UVSAbility_Flamethrower::GetFlameDamage(int InLevel, UAbilitySystemComponent* InASC) const
 {
 	UAbilityDataManager* ADM = UAbilityDataManager::GetAbilityDataManager();
-
-	int AbLevel = 1;
-
-	FGameplayAbilitySpec* Spec = InASC ? InASC->FindAbilitySpecFromHandle(Handle) : nullptr;
-
-	if (Spec)
-	{
-		AbLevel = Spec->Level;
-	}
 
 	float ReturnDamage = 0;
 
 #if WITH_EDITOR
 	if (ADM == nullptr)
 	{
-		ReturnDamage = FlameDamage[AbLevel];
+		ReturnDamage = FlameDamage[InLevel];
 	}
 #endif
 
@@ -147,7 +127,7 @@ float UVSAbility_Flamethrower::GetFlameDamage(const FGameplayAbilitySpecHandle H
 	if (ADM != nullptr)
 	{
 #endif
-		ReturnDamage = ADM->FindAbilityData(FlameDamageTag, bResult);
+		ReturnDamage = ADM->FindAbilityData(FlameDamageTag, bResult, InLevel);
 #if WITH_EDITOR
 	}
 #endif
@@ -164,18 +144,9 @@ float UVSAbility_Flamethrower::GetFlameDamage(const FGameplayAbilitySpecHandle H
 	return ReturnDamage;
 }
 
-float UVSAbility_Flamethrower::GetFlameScale(const FGameplayAbilitySpecHandle Handle, UAbilitySystemComponent* InASC) const
+float UVSAbility_Flamethrower::GetFlameScale(int InLevel, UAbilitySystemComponent* InASC) const
 {
 	UAbilityDataManager* ADM = UAbilityDataManager::GetAbilityDataManager();
-
-	int AbLevel = 1;
-
-	FGameplayAbilitySpec* Spec = InASC ? InASC->FindAbilitySpecFromHandle(Handle) : nullptr;
-
-	if (Spec)
-	{
-		AbLevel = Spec->Level;
-	}
 
 	float RangeRate = 1;
 	bool bResult = false;
@@ -184,7 +155,7 @@ float UVSAbility_Flamethrower::GetFlameScale(const FGameplayAbilitySpecHandle Ha
 #if WITH_EDITOR
 	if (ADM == nullptr)
 	{
-		if (FlameScale.IsValidIndex(AbLevel)) { RangeRate = FlameScale[AbLevel]; }
+		if (FlameScale.IsValidIndex(InLevel)) { RangeRate = FlameScale[InLevel]; }
 	}
 #endif
 
@@ -192,7 +163,7 @@ float UVSAbility_Flamethrower::GetFlameScale(const FGameplayAbilitySpecHandle Ha
 	if (ADM != nullptr)
 	{
 #endif
-		RangeRate = ADM->FindAbilityData(FlameScaleTag, bResult, AbLevel);
+		RangeRate = ADM->FindAbilityData(FlameScaleTag, bResult, InLevel);
 		if (!bResult) RangeRate = 1;
 #if WITH_EDITOR
 	}
@@ -207,18 +178,9 @@ float UVSAbility_Flamethrower::GetFlameScale(const FGameplayAbilitySpecHandle Ha
 	return RangeRate;
 }
 
-float UVSAbility_Flamethrower::GetFlameDuration(const FGameplayAbilitySpecHandle Handle, UAbilitySystemComponent* InASC) const
+float UVSAbility_Flamethrower::GetFlameDuration(int InLevel, UAbilitySystemComponent* InASC) const
 {
 	UAbilityDataManager* ADM = UAbilityDataManager::GetAbilityDataManager();
-
-	int AbLevel = 1;
-
-	FGameplayAbilitySpec* Spec = InASC ? InASC->FindAbilitySpecFromHandle(Handle) : nullptr;
-
-	if (Spec)
-	{
-		AbLevel = Spec->Level;
-	}
 
 	float RangeRate = 1;
 	bool bResult = false;
@@ -227,7 +189,7 @@ float UVSAbility_Flamethrower::GetFlameDuration(const FGameplayAbilitySpecHandle
 #if WITH_EDITOR
 	if (ADM == nullptr)
 	{
-		if (FlameDuration.IsValidIndex(AbLevel)) { RangeRate = FlameDuration[AbLevel]; }
+		if (FlameDuration.IsValidIndex(InLevel)) { RangeRate = FlameDuration[InLevel]; }
 	}
 #endif
 
@@ -235,7 +197,7 @@ float UVSAbility_Flamethrower::GetFlameDuration(const FGameplayAbilitySpecHandle
 	if (ADM != nullptr)
 	{
 #endif
-		RangeRate = ADM->FindAbilityData(FlameDurationTag, bResult, AbLevel);
+		RangeRate = ADM->FindAbilityData(FlameDurationTag, bResult, InLevel);
 		if (!bResult) RangeRate = 1;
 #if WITH_EDITOR
 	}

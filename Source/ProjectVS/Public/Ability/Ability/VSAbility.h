@@ -7,7 +7,8 @@
 #include "AssetRegistry/AssetBundleData.h"
 #include "VSAbility.generated.h"
 
-
+class UAbilitySystemComponent;
+class AVSAbilityEffecter;
 UENUM()
 enum class EVSAbilityType : uint8
 {
@@ -66,7 +67,7 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Icon", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UTexture2D> AbilityIcon;
 
-	UPROPERTY(VisibleDefaultsOnly, Category = "Ability", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, Category = "Ability", meta = (AllowPrivateAccess = "true"))
 	EVSAbilityType AbilityType;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Cooldowns", meta = (AllowPrivateAccess = "true", Categories = "CoolTime"))
@@ -85,11 +86,12 @@ protected:
 protected:
 	virtual void OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
+	virtual void ActivateAbility_CPP(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData);
+
+
 
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 
-	void SetAbilityType(EVSAbilityType NewType) {AbilityType = NewType;}
-	void SetAbilityCategory(const FName& NewCategory) {AbilityCategory = NewCategory;}
 #if WITH_EDITOR
 protected:
 	virtual void PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent) override;
@@ -99,19 +101,32 @@ public:
 	void LoadDataFromDataManager();
 
 protected:
+	virtual void CreateAbilityDataToSave(TMap<FName, TArray<float>>& InMap) const;
+
 	virtual void NativeLoadDataFromDataManager();
 
 	void ApplyDataFromDataManager(const FGameplayTag& InTag, float& InData);
 	void ApplyDataFromDataManager(const FGameplayTag& InTag, TArray<float>& InData);
+
+protected:
+	virtual void PostCDOCompiled(const FPostCDOCompiledContext& Context) override;
+	virtual EDataValidationResult IsDataValid(class FDataValidationContext& Context) const override;
+
+
 #endif
 
 	
 
 public:
+
+	void SetAbilityType(EVSAbilityType NewType) { AbilityType = NewType; }
+	void SetAbilityCategory(const FName& NewCategory) { AbilityCategory = NewCategory; }
+
 	FText GetAbilityName() const { return AbilityName; }
 
 	FName GetAbilityCode() const {return AbilityCode;}
 
+	UFUNCTION(BlueprintPure, Category = "VSAbility")
 	float GetMaxLevel() const;
 
 	UFUNCTION(BlueprintPure, Category = Ability)
@@ -122,28 +137,26 @@ public:
 
 	virtual bool CanEnterAbilityBook(class UAbilityBookComponent* InBook) const { return true; }
 
-#if WITH_EDITOR
-public:
-	virtual void CreateAbilityDataToSave(TMap<FName, TArray<float>>& InMap) const;
-protected:
-	virtual void PostCDOCompiled(const FPostCDOCompiledContext& Context) override;
-	virtual EDataValidationResult IsDataValid(class FDataValidationContext& Context) const override;
-
-#endif
-
-private:
-	float GetCooldownTime(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo) const;
-
 protected:
 	void SetCooldownTag(const FGameplayTag& NewTag);
 
 public:
+	UFUNCTION(BlueprintPure, BlueprintNativeEvent)
+	float GetCooldownTime(int InLevel, UAbilitySystemComponent* InASC) const;
+	virtual float GetCooldownTime_Implementation(int InLevel, UAbilitySystemComponent* InASC) const;
+
 	FGameplayTag GetCooldownTag() const {return CoolTimeTag;}
 
 	virtual const FGameplayTagContainer* GetCooldownTags() const override;
 	virtual void ApplyCooldown(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) const override;
 
-	virtual bool CanSetOrAddInBook(const class UAbilityBookComponent& InBook, int NewLevel) const;
+	UFUNCTION(BlueprintNativeEvent)
+	void PreAddInBook(class UAbilityBookComponent* InBook) const;
+	virtual void PreAddInBook_Implementation(class UAbilityBookComponent* InBook) const;
+
+	UFUNCTION(BlueprintPure, BlueprintNativeEvent)
+	bool CanSetOrAddInBook(const class UAbilityBookComponent* InBook, int NewLevel) const;
+	virtual bool CanSetOrAddInBook_Implementation(const class UAbilityBookComponent* InBook, int NewLevel) const;
 
 public:
 	UTexture2D* GetAbilityIcon() const { return AbilityIcon; }
@@ -152,11 +165,11 @@ public:
 	FText GetDescriptionText() const;
 
 	UFUNCTION(BlueprintPure, BlueprintNativeEvent)
-	FText GetLeveUpDescriptionText(int BeforeLevel, int AfterLevel) const;
+	FText GetLeveUpDescriptionText(const UAbilityBookComponent* InBook, int BeforeLevel, int AfterLevel) const;
 
 protected:
 	virtual FText GetDescriptionText_Implementation() const;
 
-	virtual FText GetLeveUpDescriptionText_Implementation(int BeforeLevel, int AfterLevel) const;
+	virtual FText GetLeveUpDescriptionText_Implementation(const UAbilityBookComponent* InBook, int BeforeLevel, int AfterLevel) const;
 
 };

@@ -55,6 +55,6 @@ private:
 protected:
 	virtual FText GetDescriptionText_Implementation() const override;
 
-	virtual FText GetLeveUpDescriptionText_Implementation(int BeforeLevel, int AfterLevel) const override;
+	virtual FText GetLeveUpDescriptionText_Implementation(const UAbilityBookComponent* InBook, int BeforeLevel, int AfterLevel) const override;
 
 };

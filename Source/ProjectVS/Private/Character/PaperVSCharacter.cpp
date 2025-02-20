@@ -5,6 +5,9 @@
 #include "PaperFlipbookComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Ability/AttributeSet_Default.h"
+#include "Components/ProgressBar.h"
+#include "Components/WidgetComponent.h"
+#include "Character/Widgets/CharacterHPBarWidget.h"
 
 APaperVSCharacter::APaperVSCharacter()
 {
@@ -26,6 +29,12 @@ APaperVSCharacter::APaperVSCharacter()
 	GetSprite()->SetupAttachment(SpritePivot);
 	GetSprite()->SetUsingAbsoluteRotation(true);
 	GetSprite()->SetRelativeRotation(FRotator(0,0,-90));
+
+
+	HPBarWidget = CreateDefaultSubobject<UWidgetComponent>("HPBar"); 
+	HPBarWidget->SetupAttachment(GetSpritePivot());
+	HPBarWidget->SetUsingAbsoluteRotation(true);
+	HPBarWidget->SetUsingAbsoluteScale(true);
 }
 
 void APaperVSCharacter::Tick(float DeltaSeconds)
@@ -69,6 +78,11 @@ void APaperVSCharacter::RegisterAbilitySystem(UAbilitySystemComponent* NewASC)
 		}
 
 		OnMoveSpeedChangedHandle = WeakASC->GetGameplayAttributeValueChangeDelegate(UAttributeSet_Default::GetMoveSpeedAttribute()).AddUObject(this, &APaperVSCharacter::OnMoveSpeedChanged);
+	
+		OnChangedHPHandle = WeakASC->GetGameplayAttributeValueChangeDelegate(UAttributeSet_Default::GetHPAttribute()).AddUObject(this, &APaperVSCharacter::OnChangedHP);
+		OnChangedMaxHPHandle = WeakASC->GetGameplayAttributeValueChangeDelegate(UAttributeSet_Default::GetHPAttribute()).AddUObject(this, &APaperVSCharacter::OnChangedMaxHP);
+
+		UpdateHPBarWidget();
 	}
 
 }
@@ -79,6 +93,9 @@ void APaperVSCharacter::UnregisterAbilitySystem()
 
 	WeakASC->InitAbilityActorInfo(WeakASC->GetOwnerActor(), nullptr);
 	WeakASC->GetGameplayAttributeValueChangeDelegate(UAttributeSet_Default::GetMoveSpeedAttribute()).Remove(OnMoveSpeedChangedHandle);
+
+	WeakASC->GetGameplayAttributeValueChangeDelegate(UAttributeSet_Default::GetHPAttribute()).Remove(OnChangedHPHandle);
+	WeakASC->GetGameplayAttributeValueChangeDelegate(UAttributeSet_Default::GetMaxHPAttribute()).Remove(OnChangedMaxHPHandle);
 
 	WeakASC.Reset();
 }
@@ -95,6 +112,30 @@ void APaperVSCharacter::SetMoveSpeed(float NewSpeed)
 	UCharacterMovementComponent* MovementC = GetCharacterMovement();
 	MovementC->MaxWalkSpeed = NewSpeed;
 	MovementC->MaxAcceleration = NewSpeed * 16;
+}
+
+void APaperVSCharacter::OnChangedHP(const FOnAttributeChangeData& InData)
+{
+	UpdateHPBarWidget();
+}
+
+void APaperVSCharacter::OnChangedMaxHP(const FOnAttributeChangeData& InData)
+{
+	UpdateHPBarWidget();
+}
+
+void APaperVSCharacter::UpdateHPBarWidget()
+{
+	UUserWidget* UserW = HPBarWidget->GetWidget();
+
+	if (!WeakASC.IsValid() || UserW == nullptr) { return; }
+
+	bool bResult;
+	float CurrentHP = WeakASC->GetGameplayAttributeValue(UAttributeSet_Default::GetHPAttribute(), bResult);
+	float CurrentMaxHP = WeakASC->GetGameplayAttributeValue(UAttributeSet_Default::GetMaxHPAttribute(), bResult);
+	float HPPercent = CurrentMaxHP  == 0 ? 0 : CurrentHP / CurrentMaxHP;
+
+	StaticCast<UCharacterHPBarWidget*>(UserW)->GetHPProgressBar()->SetPercent(HPPercent);
 }
 
 void APaperVSCharacter::SetLookRight(bool NewState)

@@ -40,6 +40,7 @@ private:
 	void ReadAbilityDataCSV();
 	void WriteAbilityDataCSV() const;
 
+	
 	void StartLoadAbilitiesForApplyData() const;
 
 	void CompleteLoadAbilitiesForAplyData() const;
@@ -49,4 +50,7 @@ public:
 
 	float FindAbilityData(const struct FGameplayTag& InTag, bool& bFinded, int Level = 1) const;
 	bool FindAbilityDataArray(TArray<float>& Out, const struct FGameplayTag& InTag) const;
+
+	void ReReadAbilityDataCSV();
+
 }; 

@@ -3,18 +3,18 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
+#include "Ability/Ability/VSAbilityEffecter.h"
 #include "GameplayEffectTypes.h"
 #include "FlamethrowerActor.generated.h"
 
 UCLASS(Abstract)
-class PROJECTVS_API AFlamethrowerActor : public AActor
+class PROJECTVS_API AFlamethrowerActor : public AVSAbilityEffecter
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
-	AFlamethrowerActor();
+	AFlamethrowerActor(const FObjectInitializer& ObjectInitiailzer);
 
 protected:
 	// Called when the game starts or when spawned
@@ -25,11 +25,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 private:
-	UPROPERTY(Category = Topspin, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class USceneComponent> PivotRoot;
 
-	UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UPaperFlipbookComponent> FlameFlipbook;
 
 	UPROPERTY(Category = Flipbook, EditAnywhere, meta = (DisplayThumbnail = "true"))
 	TObjectPtr<class UPaperFlipbook> Flipbook_Start;
@@ -39,8 +35,6 @@ private:
 
 	UPROPERTY(Category = Flipbook, EditAnywhere, meta = (DisplayThumbnail = "true"))
 	TObjectPtr<UPaperFlipbook> Flipbook_End;
-
-	FGameplayEffectSpecHandle DamageEffectSpecHandle;
 
 private:
 
@@ -59,8 +53,6 @@ private:
 
 public:
 	void SetFlameDuration(float NewTime);
-
-	void SetDamageEffectSpecHandle(const FGameplayEffectSpecHandle& NewEffect) { DamageEffectSpecHandle = NewEffect;}
 
 	void FlameStart();
 };

@@ -127,6 +127,11 @@ void UAbilityEditorSubsystem::WriteAbilityDataCSV() const
 	}
 }
 
+void UAbilityEditorSubsystem::ReReadAbilityDataCSV()
+{
+	ReadAbilityDataCSV();
+}
+
 void UAbilityEditorSubsystem::StartLoadAbilitiesForApplyData() const
 {
 	UAssetManager& AssetManager = UAssetManager::Get();

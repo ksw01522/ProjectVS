@@ -20,7 +20,24 @@ public:
 protected:
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;
+
+public:
+	void RegisterAbilityBook(class UAbilityBookComponent* NewBook);
+	
+	void UnregisterAbilityBook();
+
+protected:
+	virtual void OnRegisterAbilityBook(UAbilityBookComponent* NewBook);
+	virtual void OnUnregisterAbilityBook(UAbilityBookComponent* PrevBook);
+
 private:
+	UFUNCTION()
+	void OnUpdateAbilityBook(UAbilityBookComponent* InBook);
+
+private:
+	UPROPERTY(Transient)
+	TWeakObjectPtr<class UAbilityBookComponent> WeakAbilityBook;
+
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class URichTextBlock> KillCountText;
 
@@ -67,4 +84,23 @@ public:
 	void SetStageTime(float OldTime, float NewTime);
 
 	void SetLevel(int NewLevel);
+
+private:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AbilityIcon", meta = (AllowPrivateAccess = "true"))
+	float Padding_Horizontal;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AbilityIcon", meta = (AllowPrivateAccess = "true"))
+	float Padding_Vertical;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class UHorizontalBox> ActiveIconBox;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class UHorizontalBox> PassiveIconBox;
+
+protected:
+	void UpdateIconBox(UHorizontalBox* IconBox, TArray<const struct FAbilityPage*>& Pages);
+
+public:
+	void UpdateIconBoxs();
 };

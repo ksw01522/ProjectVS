@@ -113,7 +113,7 @@ FText UVSAbility_Attribute::GetDescriptionText_Implementation() const
 	return FText::Format(NSLOCTEXT("VSAbility", "AttributeAbilityDesc", "{AttributeName}의 추가 스테이터스입니다."), Args);
 }
 
-FText UVSAbility_Attribute::GetLeveUpDescriptionText_Implementation(int BeforeLevel, int AfterLevel) const
+FText UVSAbility_Attribute::GetLeveUpDescriptionText_Implementation(const UAbilityBookComponent* InBook, int BeforeLevel, int AfterLevel) const
 {
 	FFormatNamedArguments Args;
 

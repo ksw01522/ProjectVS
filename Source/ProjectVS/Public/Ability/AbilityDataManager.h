@@ -34,7 +34,8 @@ private:
 	void CompleteLoadAbilities();
 
 public:
-	TSubclassOf<UVSAbility> FindAbility(FName Code) const;
+	UFUNCTION(BlueprintPure, Category = "VSAbility")
+	TSubclassOf<UVSAbility> FindAbility(const FName& Code) const;
 
 protected:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
@@ -42,6 +43,7 @@ protected:
 	virtual void Deinitialize() override;
 
 public:
+	UFUNCTION(BlueprintPure, Category = "VSAbility")
 	float FindAbilityData(const FGameplayTag& DataTag, bool& bResult, int Level = 1) const;
 
 	bool InitializeAddableAbilities(const FName& InCharacterName, TArray<FName>& OutAbilities);

@@ -12,28 +12,12 @@
 #include "GenericTeamAgentInterface.h"
 
 // Sets default values
-ATopspinActor::ATopspinActor()
+ATopspinActor::ATopspinActor(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
-
-	PivotRoot = CreateDefaultSubobject<USceneComponent>("PivotRoot");
-	SetRootComponent(PivotRoot);
 	GetRootComponent()->SetUsingAbsoluteRotation(true);
-
-	Sprite = CreateOptionalDefaultSubobject<UPaperFlipbookComponent>("Sprite");
-	if (Sprite)
-	{
-		Sprite->AlwaysLoadOnClient = true;
-		Sprite->AlwaysLoadOnServer = true;
-		Sprite->bOwnerNoSee = false;
-		Sprite->bAffectDynamicIndirectLighting = false;
-		Sprite->PrimaryComponentTick.TickGroup = TG_PrePhysics;
-		Sprite->SetupAttachment(PivotRoot);
-		Sprite->SetGenerateOverlapEvents(false);
-
-		Sprite->SetLooping(true);
-	}
 }
 
 // Called when the game starts or when spawned
@@ -41,17 +25,19 @@ void ATopspinActor::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	if (Sprite)
+	UPaperFlipbookComponent* Flipbook = GetFlipbookComponent();
+
+	if (Flipbook)
 	{
-		Sprite->SetLooping(false);
+		Flipbook->SetLooping(false);
 
-		Sprite->SetVisibility(false);
+		Flipbook->SetVisibility(false);
 
-		Sprite->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		Flipbook->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-		Sprite->OnFinishedPlaying.AddDynamic(this, &ATopspinActor::OnFinishedTopspin);
+		Flipbook->OnFinishedPlaying.AddDynamic(this, &ATopspinActor::OnFinishedTopspin);
 
-		Sprite->OnComponentBeginOverlap.AddDynamic(this, &ATopspinActor::OnBeginOverlapTopspin);
+		Flipbook->OnComponentBeginOverlap.AddDynamic(this, &ATopspinActor::OnBeginOverlapTopspin);
 	}
 }
 
@@ -64,9 +50,11 @@ void ATopspinActor::Tick(float DeltaTime)
 
 void ATopspinActor::StartTopspin()
 {
-	Sprite->SetVisibility(true);
-	Sprite->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	Sprite->PlayFromStart();
+	UPaperFlipbookComponent* Flipbook = GetFlipbookComponent();
+
+	Flipbook->SetVisibility(true);
+	Flipbook->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	Flipbook->PlayFromStart();
 }
 
 void ATopspinActor::SetTopspinScale(float Scale)
@@ -84,9 +72,11 @@ void ATopspinActor::OnFinishedTopspin()
 	}
 	else
 	{
-		Sprite->SetVisibility(false);
+		UPaperFlipbookComponent* Flipbook = GetFlipbookComponent();
 
-		Sprite->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		Flipbook->SetVisibility(false);
+
+		Flipbook->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 		GetWorld()->GetTimerManager().SetTimer(TopspinTimerHandle, this, &ATopspinActor::StartTopspin, TopspinInterval, false);
 	}
@@ -94,7 +84,8 @@ void ATopspinActor::OnFinishedTopspin()
 
 void ATopspinActor::OnBeginOverlapTopspin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (!DamageEffectSpecHandle.IsValid()) return;
+	FGameplayEffectSpecHandle DamageEffectSpecHandle = FindEffectSpec("TopspinDamage");
+	check(DamageEffectSpecHandle.IsValid())
 
 	IAbilitySystemInterface* ASI = Cast<IAbilitySystemInterface>(OtherActor);
 	if (ASI == nullptr) return;

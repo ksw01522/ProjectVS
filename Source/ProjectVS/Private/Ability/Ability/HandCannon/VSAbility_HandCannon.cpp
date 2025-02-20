@@ -25,7 +25,7 @@ UVSAbility_HandCannon::UVSAbility_HandCannon(const FObjectInitializer& ObjectIni
 	SetAbilityType(EVSAbilityType::Active);
 }
 
-void UVSAbility_HandCannon::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
+void UVSAbility_HandCannon::ActivateAbility_CPP(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	AActor* AvatarActor = ActorInfo->AvatarActor.Get();
 	if (AvatarActor == nullptr || !CommitAbilityCooldown(Handle, ActorInfo, ActivationInfo, false))
@@ -37,12 +37,14 @@ void UVSAbility_HandCannon::ActivateAbility(const FGameplayAbilitySpecHandle Han
 
 	UAbilitySystemComponent* InASC = ActorInfo->AbilitySystemComponent.Get();
 	
-	//float FinalFireDamage = GetFireDamage(Handle, InASC);
-	//float FinalFireScale = GetFireScale(Handle, InASC);
-	int FinalFireCount = GetFireCount(Handle, InASC);
+	int AbLevel = GetAbilityLevel(Handle, ActorInfo);
+
+	float FinalFireDamage = GetFireDamage(AbLevel, InASC);
+	float FinalFireScale = GetFireScale(AbLevel, InASC);
+	int FinalFireCount = GetFireCount(AbLevel, InASC);
 	FQuat FireRotation = CreateFireRoation(AvatarActor);
 
-	FireHandCannon(Handle, InASC, FireRotation, FinalFireCount);
+	FireHandCannon(Handle, InASC, FireRotation, FinalFireDamage, FinalFireScale, FinalFireCount);
 
 	EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 }
@@ -94,26 +96,16 @@ FQuat UVSAbility_HandCannon::CreateFireRoation(AActor* AvatarActor) const
 	return Dir.ToOrientationQuat();
 }
 
-float UVSAbility_HandCannon::GetFireDamage(const FGameplayAbilitySpecHandle Handle, UAbilitySystemComponent* InASC) const
+float UVSAbility_HandCannon::GetFireDamage(int InLevel, UAbilitySystemComponent* InASC) const
 {
 	UAbilityDataManager* ADM = UAbilityDataManager::GetAbilityDataManager();
-
-	int AbLevel = 1;
-
-	FGameplayAbilitySpec* Spec = InASC ? InASC->FindAbilitySpecFromHandle(Handle) : nullptr;
-
-	if (Spec)
-	{
-		AbLevel = Spec->Level;
-	}
-
 
 	float ReturnDamage = 0;
 
 #if WITH_EDITOR
 	if (ADM == nullptr)
 	{
-		ReturnDamage = FireDamage[AbLevel];
+		ReturnDamage = FireDamage[InLevel];
 	}
 #endif
 
@@ -123,7 +115,7 @@ float UVSAbility_HandCannon::GetFireDamage(const FGameplayAbilitySpecHandle Hand
 	if (ADM != nullptr)
 	{
 #endif
-		ReturnDamage = ADM->FindAbilityData(FireDamageTag, bResult);
+		ReturnDamage = ADM->FindAbilityData(FireDamageTag, bResult, InLevel);
 #if WITH_EDITOR
 	}
 #endif
@@ -140,18 +132,9 @@ float UVSAbility_HandCannon::GetFireDamage(const FGameplayAbilitySpecHandle Hand
 	return ReturnDamage;
 }
 
-float UVSAbility_HandCannon::GetFireScale(const FGameplayAbilitySpecHandle Handle, UAbilitySystemComponent* InASC) const
+float UVSAbility_HandCannon::GetFireScale(int InLevel, UAbilitySystemComponent* InASC) const
 {
 	UAbilityDataManager* ADM = UAbilityDataManager::GetAbilityDataManager();
-
-	int AbLevel = 1;
-
-	FGameplayAbilitySpec* Spec = InASC ? InASC->FindAbilitySpecFromHandle(Handle) : nullptr;
-
-	if (Spec)
-	{
-		AbLevel = Spec->Level;
-	}
 
 	float RangeRate = 1;
 	bool bResult = false;
@@ -160,7 +143,7 @@ float UVSAbility_HandCannon::GetFireScale(const FGameplayAbilitySpecHandle Handl
 #if WITH_EDITOR
 	if (ADM == nullptr)
 	{
-		if(FireScale.IsValidIndex(AbLevel)) { RangeRate = FireScale[AbLevel]; }
+		if(FireScale.IsValidIndex(InLevel)) { RangeRate = FireScale[InLevel]; }
 	}
 #endif
 
@@ -168,7 +151,7 @@ float UVSAbility_HandCannon::GetFireScale(const FGameplayAbilitySpecHandle Handl
 	if(ADM != nullptr)
 	{
 #endif
-		RangeRate = ADM->FindAbilityData(FireScaleTag, bResult, AbLevel);
+		RangeRate = ADM->FindAbilityData(FireScaleTag, bResult, InLevel);
 		if(!bResult) RangeRate = 1;
 #if WITH_EDITOR
 	}
@@ -183,18 +166,9 @@ float UVSAbility_HandCannon::GetFireScale(const FGameplayAbilitySpecHandle Handl
 	return RangeRate;
 }
 
-int UVSAbility_HandCannon::GetFireCount(const FGameplayAbilitySpecHandle Handle, UAbilitySystemComponent* InASC) const
+int UVSAbility_HandCannon::GetFireCount(int InLevel, UAbilitySystemComponent* InASC) const
 {
 	UAbilityDataManager* ADM = UAbilityDataManager::GetAbilityDataManager();
-
-	int AbLevel = 1;
-
-	FGameplayAbilitySpec* Spec = InASC ? InASC->FindAbilitySpecFromHandle(Handle) : nullptr;
-
-	if (Spec)
-	{
-		AbLevel = Spec->Level;
-	}
 
 	int ReturnFireCount = 1;
 	bool bResult = false;
@@ -202,7 +176,7 @@ int UVSAbility_HandCannon::GetFireCount(const FGameplayAbilitySpecHandle Handle,
 #if WITH_EDITOR
 	if (ADM == nullptr)
 	{
-		if(FireCount.IsValidIndex(AbLevel)) { ReturnFireCount = FireCount[AbLevel]; }
+		if(FireCount.IsValidIndex(InLevel)) { ReturnFireCount = FireCount[InLevel]; }
 	}
 #endif
 	
@@ -210,7 +184,7 @@ int UVSAbility_HandCannon::GetFireCount(const FGameplayAbilitySpecHandle Handle,
 	if(ADM != nullptr)
 	{
 #endif
-		ReturnFireCount = ADM->FindAbilityData(FireCountTag, bResult, AbLevel);
+		ReturnFireCount = ADM->FindAbilityData(FireCountTag, bResult, InLevel);
 		if(!bResult) {ReturnFireCount = 1;}
 #if WITH_EDITOR
 	}
@@ -275,7 +249,7 @@ void UVSAbility_HandCannon::NativeLoadDataFromDataManager()
 
 #endif
 
-void UVSAbility_HandCannon::FireHandCannon(const FGameplayAbilitySpecHandle Handle, TWeakObjectPtr<class UAbilitySystemComponent> InASC, FQuat Rotation, int Count)
+void UVSAbility_HandCannon::FireHandCannon(const FGameplayAbilitySpecHandle Handle, TWeakObjectPtr<class UAbilitySystemComponent> InASC, FQuat Rotation, float Damage, float Scale, int Count)
 {
 	if(Count <= 0 || !Handle.IsValid() || !InASC.IsValid()) return;
 
@@ -283,13 +257,13 @@ void UVSAbility_HandCannon::FireHandCannon(const FGameplayAbilitySpecHandle Hand
 	if(AvatarActor == nullptr) return;
 
 	FTransform SpawnTransform = AvatarActor->GetActorTransform();
+	SpawnTransform.SetScale3D(FVector(Scale, Scale, 1));
+	SpawnTransform.SetRotation(Rotation);
 
 	AHandCannonFireActor* FireActor = AvatarActor->GetWorld()->SpawnActorDeferred<AHandCannonFireActor>(FireActorClass, SpawnTransform);
 	if (FireActor)
 	{
-		SpawnTransform.SetRotation(Rotation);
-
-		float FinalFireDamage = GetFireDamage(Handle, InASC.Get());
+		FGameplayAbilitySpec* AbilitySpec = InASC->FindAbilitySpecFromHandle(Handle);
 
 		FGameplayEffectContextHandle ContextHandle = InASC->MakeEffectContext();
 		ContextHandle.SetAbility(this);
@@ -297,7 +271,6 @@ void UVSAbility_HandCannon::FireHandCannon(const FGameplayAbilitySpecHandle Hand
 		FGameplayEffectSpecHandle FireDamageSpecHandle = InASC->MakeOutgoingSpec(UDamageEffect::StaticClass(), 1, ContextHandle);
 		if (FireDamageSpecHandle.IsValid())
 		{
-			FGameplayAbilitySpec* AbilitySpec = InASC->FindAbilitySpecFromHandle(Handle);
 			ApplyAbilityTagsToGameplayEffectSpec(*FireDamageSpecHandle.Data.Get(), AbilitySpec);
 
 			// Copy over set by caller magnitudes
@@ -307,12 +280,9 @@ void UVSAbility_HandCannon::FireHandCannon(const FGameplayAbilitySpecHandle Hand
 			}
 		}
 
-		float FinalFireScale = GetFireScale(Handle, InASC.Get());
-		SpawnTransform.SetScale3D(FVector(FinalFireScale, FinalFireScale, 1));
+		FireDamageSpecHandle.Data->SetSetByCallerMagnitude(UAttributeSet_Default::GetDamageName(), Damage);
 
-		FireDamageSpecHandle.Data->SetSetByCallerMagnitude(UAttributeSet_Default::GetDamageName(), FinalFireDamage);
-
-		FireActor->SetDamageEffectSpecHandle(FireDamageSpecHandle);
+		FireActor->AddEffectSpec("FireDamage", FireDamageSpecHandle);
 		FireActor->FinishSpawning(SpawnTransform);
 	}
 
@@ -320,7 +290,7 @@ void UVSAbility_HandCannon::FireHandCannon(const FGameplayAbilitySpecHandle Hand
 	{
 		FTimerHandle TempTimer;
 		FTimerDelegate TimerDel;
-		TimerDel.BindUObject(this, &UVSAbility_HandCannon::FireHandCannon, Handle, InASC, Rotation, Count-1);
+		TimerDel.BindUObject(this, &UVSAbility_HandCannon::FireHandCannon, Handle, InASC, Rotation, Damage, Scale, Count-1);
 		AvatarActor->GetWorld()->GetTimerManager().SetTimer(TempTimer, TimerDel, 0.1, false);
 	}
 }

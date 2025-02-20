@@ -19,7 +19,7 @@ public:
 
 
 protected:
-	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
+	virtual void ActivateAbility_CPP(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Fire")
@@ -54,11 +54,11 @@ protected:
 	FQuat CreateFireRoation(AActor* AvatarActor) const;
 
 public:
-	float GetFireDamage(const FGameplayAbilitySpecHandle Handle, class UAbilitySystemComponent* InASC) const;
+	float GetFireDamage(int InLevel, UAbilitySystemComponent* InASC) const;
 
-	float GetFireScale(const FGameplayAbilitySpecHandle Handle, UAbilitySystemComponent* InASC) const;
+	float GetFireScale(int InLevel, UAbilitySystemComponent* InASC) const;
 
-	int GetFireCount(const FGameplayAbilitySpecHandle Handle, UAbilitySystemComponent* InASC) const;
+	int GetFireCount(int InLevel, UAbilitySystemComponent* InASC) const;
 
 #if WITH_EDITOR
 protected:
@@ -72,5 +72,5 @@ protected:
 #endif
 
 private:
-	void FireHandCannon(const FGameplayAbilitySpecHandle Handle, TWeakObjectPtr<class UAbilitySystemComponent> InASC, FQuat Rotation, int Count);
+	void FireHandCannon(const FGameplayAbilitySpecHandle Handle, TWeakObjectPtr<class UAbilitySystemComponent> InASC, FQuat Rotation, float Damage, float Scale, int Count);
 };

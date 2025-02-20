@@ -23,7 +23,7 @@ UVSAbility_CannonBall::UVSAbility_CannonBall(const FObjectInitializer& ObjectIni
 {
 	SetAbilityType(EVSAbilityType::Active);
 }
-void UVSAbility_CannonBall::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
+void UVSAbility_CannonBall::ActivateAbility_CPP(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	AActor* AvatarActor = ActorInfo->AvatarActor.Get();
 	UAbilitySystemComponent* InASC = ActorInfo->AbilitySystemComponent.Get();
@@ -34,11 +34,13 @@ void UVSAbility_CannonBall::ActivateAbility(const FGameplayAbilitySpecHandle Han
 		return;
 	}
 
-	float FinalCannonBallDamage = GetCannonBallDamage(Handle, InASC);
-	float FinalExplosionDamage = GetExplosionDamage(Handle, InASC);
-	float FinalCannonBallScale = GetCannonBallScale(Handle, InASC);
+	int AbLevel = GetAbilityLevel(Handle, ActorInfo);
+
+	float FinalCannonBallDamage = GetCannonBallDamage(AbLevel, InASC);
+	float FinalExplosionDamage = GetExplosionDamage(AbLevel, InASC);
+	float FinalCannonBallScale = GetCannonBallScale(AbLevel, InASC);
 	FQuat CannonBallRotation = CreateCannonBallRoation(AvatarActor);
-	float FinalCannonBallSpeed = GetCannonBallSpeed(Handle, InASC);
+	float FinalCannonBallSpeed = GetCannonBallSpeed(AbLevel, InASC);
 
 	FTransform SpawnTransform;
 	SpawnTransform.SetLocation(AvatarActor->GetActorLocation());
@@ -115,26 +117,16 @@ FQuat UVSAbility_CannonBall::CreateCannonBallRoation(AActor* AvatarActor) const
 	return Dir.ToOrientationQuat();
 }
 
-float UVSAbility_CannonBall::GetCannonBallDamage(const FGameplayAbilitySpecHandle Handle, UAbilitySystemComponent* InASC) const
+float UVSAbility_CannonBall::GetCannonBallDamage(int InLevel, UAbilitySystemComponent* InASC) const
 {
 	UAbilityDataManager* ADM = UAbilityDataManager::GetAbilityDataManager();
-
-	int AbLevel = 1;
-
-	FGameplayAbilitySpec* Spec = InASC ? InASC->FindAbilitySpecFromHandle(Handle) : nullptr;
-
-	if (Spec)
-	{
-		AbLevel = Spec->Level;
-	}
-
 
 	float ReturnDamage = 0;
 
 #if WITH_EDITOR
 	if (ADM == nullptr)
 	{
-		ReturnDamage = CannonBallDamage[AbLevel];
+		ReturnDamage = CannonBallDamage[InLevel];
 	}
 #endif
 
@@ -144,7 +136,7 @@ float UVSAbility_CannonBall::GetCannonBallDamage(const FGameplayAbilitySpecHandl
 	if (ADM != nullptr)
 	{
 #endif
-		ReturnDamage = ADM->FindAbilityData(CannonBallDamageTag, bResult);
+		ReturnDamage = ADM->FindAbilityData(CannonBallDamageTag, bResult, InLevel);
 #if WITH_EDITOR
 	}
 #endif
@@ -161,26 +153,16 @@ float UVSAbility_CannonBall::GetCannonBallDamage(const FGameplayAbilitySpecHandl
 	return ReturnDamage;
 }
 
-float UVSAbility_CannonBall::GetExplosionDamage(const FGameplayAbilitySpecHandle Handle, UAbilitySystemComponent* InASC) const
+float UVSAbility_CannonBall::GetExplosionDamage(int InLevel, UAbilitySystemComponent* InASC) const
 {
 	UAbilityDataManager* ADM = UAbilityDataManager::GetAbilityDataManager();
-
-	int AbLevel = 1;
-
-	FGameplayAbilitySpec* Spec = InASC ? InASC->FindAbilitySpecFromHandle(Handle) : nullptr;
-
-	if (Spec)
-	{
-		AbLevel = Spec->Level;
-	}
-
 
 	float ReturnDamage = 0;
 
 #if WITH_EDITOR
 	if (ADM == nullptr)
 	{
-		ReturnDamage = ExplosionDamage[AbLevel];
+		ReturnDamage = ExplosionDamage[InLevel];
 	}
 #endif
 
@@ -190,7 +172,7 @@ float UVSAbility_CannonBall::GetExplosionDamage(const FGameplayAbilitySpecHandle
 	if (ADM != nullptr)
 	{
 #endif
-		ReturnDamage = ADM->FindAbilityData(ExplosionDamageTag, bResult);
+		ReturnDamage = ADM->FindAbilityData(ExplosionDamageTag, bResult, InLevel);
 #if WITH_EDITOR
 	}
 #endif
@@ -207,18 +189,9 @@ float UVSAbility_CannonBall::GetExplosionDamage(const FGameplayAbilitySpecHandle
 	return ReturnDamage;
 }
 
-float UVSAbility_CannonBall::GetCannonBallScale(const FGameplayAbilitySpecHandle Handle, UAbilitySystemComponent* InASC) const
+float UVSAbility_CannonBall::GetCannonBallScale(int InLevel, UAbilitySystemComponent* InASC) const
 {
 	UAbilityDataManager* ADM = UAbilityDataManager::GetAbilityDataManager();
-
-	int AbLevel = 1;
-
-	FGameplayAbilitySpec* Spec = InASC ? InASC->FindAbilitySpecFromHandle(Handle) : nullptr;
-
-	if (Spec)
-	{
-		AbLevel = Spec->Level;
-	}
 
 	float RangeRate = 1;
 	bool bResult = false;
@@ -227,7 +200,7 @@ float UVSAbility_CannonBall::GetCannonBallScale(const FGameplayAbilitySpecHandle
 #if WITH_EDITOR
 	if (ADM == nullptr)
 	{
-		if (CannonBallScale.IsValidIndex(AbLevel)) { RangeRate = CannonBallScale[AbLevel]; }
+		if (CannonBallScale.IsValidIndex(InLevel)) { RangeRate = CannonBallScale[InLevel]; }
 	}
 #endif
 
@@ -235,7 +208,7 @@ float UVSAbility_CannonBall::GetCannonBallScale(const FGameplayAbilitySpecHandle
 	if (ADM != nullptr)
 	{
 #endif
-		RangeRate = ADM->FindAbilityData(CannonBallScaleTag, bResult, AbLevel);
+		RangeRate = ADM->FindAbilityData(CannonBallScaleTag, bResult, InLevel);
 		if (!bResult) RangeRate = 1;
 #if WITH_EDITOR
 	}
@@ -250,18 +223,9 @@ float UVSAbility_CannonBall::GetCannonBallScale(const FGameplayAbilitySpecHandle
 	return RangeRate;
 }
 
-float UVSAbility_CannonBall::GetCannonBallSpeed(const FGameplayAbilitySpecHandle Handle, UAbilitySystemComponent* InASC) const
+float UVSAbility_CannonBall::GetCannonBallSpeed(int InLevel, UAbilitySystemComponent* InASC) const
 {
 	UAbilityDataManager* ADM = UAbilityDataManager::GetAbilityDataManager();
-
-	int AbLevel = 1;
-
-	FGameplayAbilitySpec* Spec = InASC ? InASC->FindAbilitySpecFromHandle(Handle) : nullptr;
-
-	if (Spec)
-	{
-		AbLevel = Spec->Level;
-	}
 
 	float ReturnSpeed = 1;
 	bool bResult = false;
@@ -270,7 +234,7 @@ float UVSAbility_CannonBall::GetCannonBallSpeed(const FGameplayAbilitySpecHandle
 #if WITH_EDITOR
 	if (ADM == nullptr)
 	{
-		if (CannonBallSpeed.IsValidIndex(AbLevel)) { ReturnSpeed = CannonBallSpeed[AbLevel]; }
+		if (CannonBallSpeed.IsValidIndex(InLevel)) { ReturnSpeed = CannonBallSpeed[InLevel]; }
 	}
 #endif
 
@@ -278,7 +242,7 @@ float UVSAbility_CannonBall::GetCannonBallSpeed(const FGameplayAbilitySpecHandle
 	if (ADM != nullptr)
 	{
 #endif
-		ReturnSpeed = ADM->FindAbilityData(CannonBallSpeedTag, bResult, AbLevel);
+		ReturnSpeed = ADM->FindAbilityData(CannonBallSpeedTag, bResult, InLevel);
 		if (!bResult) ReturnSpeed = 1;
 #if WITH_EDITOR
 	}

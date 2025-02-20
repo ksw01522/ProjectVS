@@ -11,6 +11,8 @@
 #include "UObject/ObjectSaveContext.h"
 #include "UObject/Package.h"
 #include "Engine/AssetManager.h"
+#include "AbilitySystemLog.h"
+#include "Ability/AttributeSet_Player.h"
 
 #if WITH_EDITOR
 #include "Misc/DataValidation.h"
@@ -116,8 +118,34 @@ void UVSAbility::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const F
 
 void UVSAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
+	if (TriggerEventData && bHasBlueprintActivateFromEvent)
+	{
+		// A Blueprinted ActivateAbility function must call CommitAbility somewhere in its execution chain.
+		K2_ActivateAbilityFromEvent(*TriggerEventData);
+	}
+	else if (bHasBlueprintActivate)
+	{
+		// A Blueprinted ActivateAbility function must call CommitAbility somewhere in its execution chain.
+		K2_ActivateAbility();
+	}
+	else if (bHasBlueprintActivateFromEvent)
+	{
+		UE_LOG(LogAbilitySystem, Warning, TEXT("Ability %s expects event data but none is being supplied. Use 'Activate Ability' instead of 'Activate Ability From Event' in the Blueprint."), *GetName());
+		constexpr bool bReplicateEndAbility = false;
+		constexpr bool bWasCancelled = true;
+		EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+	}
+	else
+	{
+		ActivateAbility_CPP(Handle, ActorInfo, ActivationInfo,TriggerEventData);
+	}
+}
+
+void UVSAbility::ActivateAbility_CPP(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
+{
 	LOG_ERROR(TEXT("Must Write ActivateAbility Function"));
 	EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+
 }
 
 
@@ -253,20 +281,27 @@ EDataValidationResult UVSAbility::IsDataValid(FDataValidationContext& Context) c
 
 #endif
 
-float UVSAbility::GetCooldownTime(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo) const
+float UVSAbility::GetCooldownTime_Implementation(int InLevel, UAbilitySystemComponent* InASC) const
 {
-	int CurrentLevel = GetAbilityLevel(Handle, ActorInfo);
 	UAbilityDataManager* DataManager = UAbilityDataManager::GetAbilityDataManager();
 	
 #if WITH_EDITOR
 	if(DataManager == nullptr)
 	{
-		return CoolTime[CurrentLevel];
+		return CoolTime[InLevel];
 	}
 #endif
 	
 	bool bResult;
-	return DataManager->FindAbilityData(CoolTimeTag, bResult, CurrentLevel);
+	float ReturnCoolTime = DataManager->FindAbilityData(CoolTimeTag, bResult, InLevel);
+
+	if (InASC != nullptr)
+	{
+		float CoolTimeRate = InASC->GetGameplayAttributeValue(UAttributeSet_Player::GetCoolTimeRateAttribute(), bResult);
+		if(bResult) {ReturnCoolTime *= CoolTimeRate;}
+	}
+
+	return ReturnCoolTime;
 }
 
 void UVSAbility::SetCooldownTag(const FGameplayTag& NewTag)
@@ -293,7 +328,10 @@ void UVSAbility::ApplyCooldown(const FGameplayAbilitySpecHandle Handle, const FG
 	UGameplayEffect* CooldownGE = GetCooldownGameplayEffect();
 	if (CooldownGE == nullptr) return;
 
-	float CurrentCoolTime = GetCooldownTime(Handle, ActorInfo);
+	UAbilitySystemComponent* InASC = ActorInfo->AbilitySystemComponent.Get();
+	int AbLevel = GetAbilityLevel(Handle, ActorInfo);
+
+	float CurrentCoolTime = GetCooldownTime(AbLevel, InASC);
 	if(CurrentCoolTime <= 0) return;
 
 	int BeforC = ActorInfo->AbilitySystemComponent->GetTagCount(CoolTimeTag);
@@ -333,17 +371,24 @@ void UVSAbility::ApplyCooldown(const FGameplayAbilitySpecHandle Handle, const FG
 	}
 }
 
-bool UVSAbility::CanSetOrAddInBook(const UAbilityBookComponent& InBook, int NewLevel) const
+void UVSAbility::PreAddInBook_Implementation(UAbilityBookComponent* InBook) const
 {
-	if (NewLevel <= 0) return false;
+	check(InBook)
+	LOG_WARNING(TEXT("Call Pre Added In Book"));
+}
 
-	if (int CurrentLevel = InBook.GetAbilityLevel(GetAbilityCode()); 0 < CurrentLevel)
+bool UVSAbility::CanSetOrAddInBook_Implementation(const UAbilityBookComponent* InBook, int NewLevel) const
+{
+	check(InBook)
+	if (NewLevel < 0) return false;
+
+	if (int CurrentLevel = InBook->GetAbilityLevel(GetAbilityCode()); 0 < CurrentLevel)
 	{
 		return CurrentLevel < NewLevel;
 	}
 	else
 	{
-		return !InBook.IsBookFullPage(GetAbilityType());
+		return !InBook->IsBookFullPage(GetAbilityType());
 	}
 }
 
@@ -352,7 +397,7 @@ FText UVSAbility::GetDescriptionText_Implementation() const
 	return FText::GetEmpty();
 }
 
-FText UVSAbility::GetLeveUpDescriptionText_Implementation(int BeforeLevel, int AfterLevel) const
+FText UVSAbility::GetLeveUpDescriptionText_Implementation(const UAbilityBookComponent* InBook, int BeforeLevel, int AfterLevel) const
 {
 	return FText::GetEmpty();
 }

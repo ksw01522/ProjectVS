@@ -6,6 +6,7 @@
 #include "Ability/Ability/VSAbility.h"
 #include "VSAbility_CannonBall.generated.h"
 
+class UAbilitySystemComponent;
 /**
  * 
  */
@@ -18,7 +19,7 @@ public:
 	UVSAbility_CannonBall(const FObjectInitializer& ObjectInitailizer);
 
 protected:
-	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
+	virtual void ActivateAbility_CPP(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "CannonBall")
@@ -62,13 +63,13 @@ protected:
 	FQuat CreateCannonBallRoation(AActor* AvatarActor) const;
 
 public:
-	float GetCannonBallDamage(const FGameplayAbilitySpecHandle Handle, class UAbilitySystemComponent* InASC) const;
+	float GetCannonBallDamage(int InLevel, UAbilitySystemComponent* InASC) const;
 
-	float GetExplosionDamage(const FGameplayAbilitySpecHandle Handle, class UAbilitySystemComponent* InASC) const;
+	float GetExplosionDamage(int InLevel, UAbilitySystemComponent* InASC) const;
 
-	float GetCannonBallScale(const FGameplayAbilitySpecHandle Handle, UAbilitySystemComponent* InASC) const;
+	float GetCannonBallScale(int InLevel, UAbilitySystemComponent* InASC) const;
 
-	float GetCannonBallSpeed(const FGameplayAbilitySpecHandle Handle, UAbilitySystemComponent* InASC) const;
+	float GetCannonBallSpeed(int InLevel, UAbilitySystemComponent* InASC) const;
 
 
 #if WITH_EDITOR

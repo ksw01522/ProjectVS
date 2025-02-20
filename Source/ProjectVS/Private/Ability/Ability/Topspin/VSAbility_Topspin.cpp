@@ -16,7 +16,7 @@ UVSAbility_Topspin::UVSAbility_Topspin(const FObjectInitializer& ObjectInitializ
 	SetAbilityType(EVSAbilityType::Active);
 }
 
-void UVSAbility_Topspin::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
+void UVSAbility_Topspin::ActivateAbility_CPP(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	AActor* AvatarActor = ActorInfo->AvatarActor.Get();
 	
@@ -29,11 +29,13 @@ void UVSAbility_Topspin::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 
 	UAbilitySystemComponent* InASC = ActorInfo->AbilitySystemComponent.Get();
 
-	int FinalTopspinCount = GetTopspinCount(Handle, InASC);
+	int AbLevel = GetAbilityLevel(Handle, ActorInfo);
+
+	int FinalTopspinCount = GetTopspinCount(AbLevel, InASC);
 
 	UWorld* World = AvatarActor->GetWorld();
 
-	float FinalScale = GetTopspinScale(Handle, InASC);
+	float FinalScale = GetTopspinScale(AbLevel, InASC);
 
 	FTransform SpawnTranform;
 	SpawnTranform.SetLocation(AvatarActor->GetActorLocation());
@@ -45,12 +47,12 @@ void UVSAbility_Topspin::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 
 		TopspinActor->AttachToActor(AvatarActor, AttachRule);
 
-		TopspinActor->SetTopspinCount(GetTopspinCount(Handle, InASC));
+		TopspinActor->SetTopspinCount(FinalTopspinCount);
 
 		FGameplayEffectSpecHandle DamageSpecHandle = MakeOutgoingGameplayEffectSpec(Handle, ActorInfo, ActivationInfo, UDamageEffect::StaticClass());
-		DamageSpecHandle.Data->SetSetByCallerMagnitude(UAttributeSet_Default::GetDamageName(), GetTopspinDamage(Handle, InASC));
+		DamageSpecHandle.Data->SetSetByCallerMagnitude(UAttributeSet_Default::GetDamageName(), GetTopspinDamage(AbLevel, InASC));
 
-		TopspinActor->SetDamageEffectSpecHandle(DamageSpecHandle);
+		TopspinActor->AddEffectSpec("TopspinDamage", DamageSpecHandle);
 
 		TopspinActor->SetTopspinScale(FinalScale);
 		
@@ -61,26 +63,16 @@ void UVSAbility_Topspin::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 	EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 }
 
-float UVSAbility_Topspin::GetTopspinDamage(const FGameplayAbilitySpecHandle Handle, UAbilitySystemComponent* InASC) const
+float UVSAbility_Topspin::GetTopspinDamage(int InLevel, UAbilitySystemComponent* InASC) const
 {
 	UAbilityDataManager* ADM = UAbilityDataManager::GetAbilityDataManager();
-
-	int AbLevel = 1;
-
-	FGameplayAbilitySpec* Spec = InASC ? InASC->FindAbilitySpecFromHandle(Handle) : nullptr;
-
-	if (Spec)
-	{
-		AbLevel = Spec->Level;
-	}
-
 
 	float ReturnDamage = 0;
 
 #if WITH_EDITOR
 	if (ADM == nullptr)
 	{
-		ReturnDamage = TopspinDamage[AbLevel - 1];
+		ReturnDamage = TopspinDamage[InLevel];
 	}
 #endif
 
@@ -90,7 +82,7 @@ float UVSAbility_Topspin::GetTopspinDamage(const FGameplayAbilitySpecHandle Hand
 	if (ADM != nullptr)
 	{
 #endif
-		ReturnDamage = ADM->FindAbilityData(TopspinDamageTag, bResult);
+		ReturnDamage = ADM->FindAbilityData(TopspinDamageTag, bResult, InLevel);
 #if WITH_EDITOR
 	}
 #endif
@@ -107,18 +99,9 @@ float UVSAbility_Topspin::GetTopspinDamage(const FGameplayAbilitySpecHandle Hand
 	return ReturnDamage;
 }
 
-float UVSAbility_Topspin::GetTopspinScale(const FGameplayAbilitySpecHandle Handle, UAbilitySystemComponent* InASC) const
+float UVSAbility_Topspin::GetTopspinScale(int InLevel, UAbilitySystemComponent* InASC) const
 {
 	UAbilityDataManager* ADM = UAbilityDataManager::GetAbilityDataManager();
-
-	int AbLevel = 1;
-
-	FGameplayAbilitySpec* Spec = InASC ? InASC->FindAbilitySpecFromHandle(Handle) : nullptr;
-
-	if (Spec)
-	{
-		AbLevel = Spec->Level;
-	}
 
 	float RangeRate = 1;
 	bool bResult = false;
@@ -127,7 +110,7 @@ float UVSAbility_Topspin::GetTopspinScale(const FGameplayAbilitySpecHandle Handl
 #if WITH_EDITOR
 	if (ADM == nullptr)
 	{
-		if (TopspinScale.IsValidIndex(AbLevel - 1)) { RangeRate = TopspinScale[AbLevel - 1]; }
+		if (TopspinScale.IsValidIndex(InLevel)) { RangeRate = TopspinScale[InLevel]; }
 	}
 #endif
 
@@ -135,7 +118,7 @@ float UVSAbility_Topspin::GetTopspinScale(const FGameplayAbilitySpecHandle Handl
 	if (ADM != nullptr)
 	{
 #endif
-		RangeRate = ADM->FindAbilityData(TopspinScaleTag, bResult, AbLevel);
+		RangeRate = ADM->FindAbilityData(TopspinScaleTag, bResult, InLevel);
 		if (!bResult) RangeRate = 1;
 #if WITH_EDITOR
 	}
@@ -150,18 +133,9 @@ float UVSAbility_Topspin::GetTopspinScale(const FGameplayAbilitySpecHandle Handl
 	return RangeRate;
 }
 
-int UVSAbility_Topspin::GetTopspinCount(const FGameplayAbilitySpecHandle Handle, UAbilitySystemComponent* InASC) const
+int UVSAbility_Topspin::GetTopspinCount(int InLevel, UAbilitySystemComponent* InASC) const
 {
 	UAbilityDataManager* ADM = UAbilityDataManager::GetAbilityDataManager();
-
-	int AbLevel = 1;
-
-	FGameplayAbilitySpec* Spec = InASC ? InASC->FindAbilitySpecFromHandle(Handle) : nullptr;
-
-	if (Spec)
-	{
-		AbLevel = Spec->Level;
-	}
 
 	int ReturnTopspinCount = 1;
 	bool bResult = false;
@@ -169,11 +143,11 @@ int UVSAbility_Topspin::GetTopspinCount(const FGameplayAbilitySpecHandle Handle,
 #if WITH_EDITOR
 	if (ADM == nullptr)
 	{
-		if (TopspinCount.IsValidIndex(AbLevel - 1)) { ReturnTopspinCount = TopspinCount[AbLevel - 1]; }
+		if (TopspinCount.IsValidIndex(InLevel)) { ReturnTopspinCount = TopspinCount[InLevel]; }
 	} 
 	else{
 #endif
-		ReturnTopspinCount = ADM->FindAbilityData(TopspinCountTag, bResult, AbLevel);
+		ReturnTopspinCount = ADM->FindAbilityData(TopspinCountTag, bResult, InLevel);
 		if (!bResult) { ReturnTopspinCount = 1; }
 #if WITH_EDITOR
 	}

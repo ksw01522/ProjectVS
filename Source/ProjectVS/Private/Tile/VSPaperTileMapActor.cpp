@@ -26,13 +26,20 @@ void AVSPaperTileMapActor::BeginPlay()
 	int32 MapWidth, MapHeight, NumLayers;
 	GetRenderComponent()->GetMapSize(MapWidth, MapHeight, NumLayers);
 	FVector CenterPos = GetRenderComponent()->GetTileCenterPosition(MapWidth * 0.5, MapHeight * 0.5, 0, true);
-	ANavMeshBoundsVolume* BoundsVolume = GetWorld()->SpawnActor<ANavMeshBoundsVolume>(ANavMeshBoundsVolume::StaticClass(), CenterPos, FRotator::ZeroRotator);
+	FTransform SpawnTransform(FRotator::ZeroRotator, CenterPos, FVector::OneVector);
+	ANavMeshBoundsVolume* BoundsVolume = GetWorld()->SpawnActor<ANavMeshBoundsVolume>(ANavMeshBoundsVolume::StaticClass(), SpawnTransform);
 	
+	FBoxSphereBounds NewBounds = TileBox->GetLocalBounds();
+	NewBounds.BoxExtent = FVector(1000,1000,1000) + NewBounds.BoxExtent;
 	BoundsVolume->GetRootComponent()->Bounds = TileBox->GetLocalBounds();
+	
+	UNavigationSystemV1* NavSys = FNavigationSystem::GetCurrent<UNavigationSystemV1>(GetWorld());
 
-	UNavigationSystemV1* NavSys = Cast<UNavigationSystemV1>(GetWorld()->GetNavigationSystem());
+	NavSys->Build();
 	NavSys->OnNavigationBoundsUpdated(BoundsVolume);
+
 }
+
 
 
 FVector AVSPaperTileMapActor::GetTileCornerLocation(EVSTileDirection Dir, bool bWorld)

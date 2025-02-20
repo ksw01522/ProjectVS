@@ -40,7 +40,6 @@ private:
 protected:
 	virtual void BeginPlay() override;
 
-
 public:
 	UBoxComponent* GetTileBox() const {return TileBox;}
 

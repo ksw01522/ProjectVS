@@ -24,4 +24,13 @@ public:
 	static ETeamAttitude::Type GetTeamAttitude(AActor* A, UAbilitySystemComponent* B);
 
 	static ETeamAttitude::Type GetTeamAttitude(UAbilitySystemComponent* A, UAbilitySystemComponent* B);
+
+	UFUNCTION(BlueprintPure, Category = "VSEffectSpecStorage")
+	static FGameplayEffectSpecHandle FindEffectSpec(UObject* InObj, const FName& InKey);
+
+	UFUNCTION(BlueprintCallable, Category = "VSEffectSpecStorage")
+	static void AddEffectSpec(UObject* InObj, const FName& InKey, const FGameplayEffectSpecHandle& InSpecHandle);
+
+	UFUNCTION(BlueprintCallable, Category = "VSEffectSpecStorage")
+	static void RemoveEffectSpec(UObject* InObj, const FName& InKey);
 };

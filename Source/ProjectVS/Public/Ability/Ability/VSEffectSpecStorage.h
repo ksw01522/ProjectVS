@@ -8,7 +8,7 @@
 #include "VSEffectSpecStorage.generated.h"
 
 // This class does not need to be modified.
-UINTERFACE(MinimalAPI)
+UINTERFACE(MinimalAPI, meta = (CannotImplementInterfaceInBlueprint))
 class UVSEffectSpecStorage : public UInterface
 {
 	GENERATED_BODY()
@@ -29,5 +29,6 @@ public:
 	FGameplayEffectSpecHandle FindEffectSpec(const FName& InKey) const;
 
 	void AddEffectSpec(const FName& InKey, const FGameplayEffectSpecHandle& InSpecHandle);
+
 	void RemoveEffectSpec(const FName& InKey);
 };

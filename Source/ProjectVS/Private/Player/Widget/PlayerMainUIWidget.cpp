@@ -2,6 +2,9 @@
 
 
 #include "Player/Widget/PlayerMainUIWidget.h"
+
+#include "ProjectVS.h"
+
 #include "Components/TextBlock.h"
 #include "Components/ProgressBar.h"
 #include "Character/Monster/MonsterWorldManager.h"
@@ -13,12 +16,27 @@
 #include "Ability/AttributeSet_Player.h"
 #include "GameplayEffectTypes.h"
 #include "Components/RichTextBlock.h"
+#include "Ability/VSAbility.h"
+#include "Ability/AbilityBookComponent.h"
+
+#include "Components/VerticalBox.h"
+#include "Components/VerticalBoxSlot.h"
+#include "Components/HorizontalBox.h"
+#include "Components/HorizontalBoxSlot.h"
+
+#include "Components/Image.h"
+
+#include "Ability/AbilityDataManager.h"
+
+#include "Blueprint/WidgetTree.h"
+
 
 #define LOCTEXT_NAMESPACE "ProjectVS Widget"
 
+
 UPlayerMainUIWidget::UPlayerMainUIWidget(const FObjectInitializer& Initializer) : Super(Initializer)
 {
-
+	
 }
 
 void UPlayerMainUIWidget::NativeConstruct()
@@ -59,6 +77,9 @@ void UPlayerMainUIWidget::NativeConstruct()
 		ASC->GetGameplayAttributeValueChangeDelegate(UAttributeSet_Player::GetCurrentEXPAttribute()).AddUObject(this, &UPlayerMainUIWidget::OnCurrentEXPChanged);
 		ASC->GetGameplayAttributeValueChangeDelegate(UAttributeSet_Player::GetEXPForLevelUpAttribute()).AddUObject(this, &UPlayerMainUIWidget::OnEXPForLevelUpChanged);
 		ASC->GetGameplayAttributeValueChangeDelegate(UAttributeSet_Player::GetGoldAttribute()).AddUObject(this, &UPlayerMainUIWidget::OnGoldChanged);
+	
+		UAbilityBookComponent* PlayerAbilityBook = VSPlayerState->GetAbilityBookComponent();
+		RegisterAbilityBook(PlayerAbilityBook);
 	}
 }
 
@@ -74,6 +95,48 @@ void UPlayerMainUIWidget::NativeDestruct()
 	}
 
 	Super::NativeDestruct();
+}
+
+void UPlayerMainUIWidget::RegisterAbilityBook(UAbilityBookComponent* NewBook)
+{
+	if(NewBook == WeakAbilityBook.Get()) return;
+
+	UnregisterAbilityBook();
+
+	WeakAbilityBook = NewBook;
+	if (WeakAbilityBook.IsValid())
+	{
+		OnRegisterAbilityBook(WeakAbilityBook.Get());
+	}
+}
+
+void UPlayerMainUIWidget::UnregisterAbilityBook()
+{
+	if (!WeakAbilityBook.IsValid()) return;
+	UAbilityBookComponent* PrevBook = WeakAbilityBook.Get();
+	WeakAbilityBook.Reset();
+
+	
+	OnUnregisterAbilityBook(PrevBook);
+}
+
+void UPlayerMainUIWidget::OnRegisterAbilityBook(UAbilityBookComponent* NewBook)
+{
+	check(NewBook)
+	UpdateIconBoxs();
+	NewBook->GetOnUpdateBookDelegate().AddDynamic(this, &UPlayerMainUIWidget::OnUpdateAbilityBook);
+}
+
+void UPlayerMainUIWidget::OnUnregisterAbilityBook(UAbilityBookComponent* PrevBook)
+{
+	
+
+	PrevBook->GetOnUpdateBookDelegate().RemoveDynamic(this, &UPlayerMainUIWidget::OnUpdateAbilityBook);
+}
+
+void UPlayerMainUIWidget::OnUpdateAbilityBook(UAbilityBookComponent* InBook)
+{
+	UpdateIconBoxs();
 }
 
 
@@ -164,6 +227,63 @@ void UPlayerMainUIWidget::SetLevel(int NewLevel)
 {
 	FString NewLevelString = FString::Printf(TEXT("Lv.%d"), NewLevel);
 	LevelText->SetText(FText::FromString(NewLevelString));
+}
+
+
+
+void UPlayerMainUIWidget::UpdateIconBoxs()
+{
+	LOG_ERROR(TEXT("Test"));
+	if(!WeakAbilityBook.IsValid()) {return;}
+
+	TArray<const FAbilityPage*> ActivePages;
+	WeakAbilityBook->GetAbilityPageArray(ActivePages, EVSAbilityType::Active);
+	UpdateIconBox(ActiveIconBox, ActivePages);
+
+	LOG_ERROR(TEXT("%d"), ActiveIconBox->GetChildrenCount());
+	
+	TArray<const FAbilityPage*> PassivePages;
+	WeakAbilityBook->GetAbilityPageArray(PassivePages, EVSAbilityType::Passive);
+	UpdateIconBox(PassiveIconBox, PassivePages);
+}
+
+void UPlayerMainUIWidget::UpdateIconBox(UHorizontalBox* IconBox, TArray<const FAbilityPage*>& Pages)
+{
+	LOG_ERROR(TEXT("Test"));
+
+	UAbilityDataManager* ADM = UAbilityDataManager::GetAbilityDataManager();
+	check(ADM)
+
+	int PageCount = Pages.Num();
+	TArray<UWidget*> TempIcons = IconBox->GetAllChildren();
+	for (UWidget*& TempWidget : TempIcons)
+	{
+		UImage* TempImage = StaticCast<UImage*>(TempWidget);
+		TempImage->SetBrushFromTexture(nullptr);
+	}
+
+	for (int i = 0; i < PageCount; i++)
+	{
+		UImage* TargetImage = nullptr;
+		if (TempIcons.IsValidIndex(i))
+		{
+			TargetImage = StaticCast<UImage*>(TempIcons[i]);
+		}
+		else
+		{
+			TargetImage = WidgetTree->ConstructWidget<UImage>();
+			UVerticalBoxSlot* NewBoxSlot = StaticCast<UVerticalBoxSlot*>(IconBox->AddChild(TargetImage));
+			NewBoxSlot->SetPadding(FMargin(Padding_Horizontal, Padding_Vertical));
+		}
+
+		FName AbilityCode = Pages[i]->GetAbilityCode();
+		const UVSAbility* TempAbility = ADM->FindAbility(AbilityCode).GetDefaultObject();
+		if (TempAbility)
+		{
+			TargetImage->SetBrushFromTexture(TempAbility->GetAbilityIcon());
+		}
+
+	}
 }
 
 #undef LOCTEXT_NAMESPACE

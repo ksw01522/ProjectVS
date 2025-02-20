@@ -3,6 +3,7 @@
 
 #include "Ability/VSAbilityFunctionLibrary.h"
 #include "AbilitySystemComponent.h"
+#include "Ability/VSEffectSpecStorage.h"
 
 ETeamAttitude::Type UVSAbilityFunctionLibrary::GetTeamAttitude(AActor* A, AActor* B)
 {
@@ -31,4 +32,28 @@ ETeamAttitude::Type UVSAbilityFunctionLibrary::GetTeamAttitude(UAbilitySystemCom
 	AActor* ActorB = B == nullptr ? nullptr : B->GetOwnerActor();
 
 	return GetTeamAttitude(ActorA, ActorB);
+}
+
+FGameplayEffectSpecHandle UVSAbilityFunctionLibrary::FindEffectSpec(UObject* InObj, const FName& InKey)
+{
+	IVSEffectSpecStorage* Storage = Cast<IVSEffectSpecStorage>(InObj);
+	check(Storage);
+
+	return Storage->FindEffectSpec(InKey);
+}
+
+void UVSAbilityFunctionLibrary::AddEffectSpec(UObject* InObj, const FName& InKey, const FGameplayEffectSpecHandle& InSpecHandle)
+{
+	IVSEffectSpecStorage* Storage = Cast<IVSEffectSpecStorage>(InObj);
+	check(Storage);
+
+	Storage->AddEffectSpec(InKey, InSpecHandle);
+}
+
+void UVSAbilityFunctionLibrary::RemoveEffectSpec(UObject* InObj, const FName& InKey)
+{
+	IVSEffectSpecStorage* Storage = Cast<IVSEffectSpecStorage>(InObj);
+	check(Storage);
+
+	Storage->RemoveEffectSpec(InKey);
 }

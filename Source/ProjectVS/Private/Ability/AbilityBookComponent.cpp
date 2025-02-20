@@ -83,6 +83,20 @@ void UAbilityBookComponent::ClearAbilityBook()
 }
 
 
+void UAbilityBookComponent::SetOrAddPageByLevelUp(FName InCode, int NewLevel)
+{
+	const UAbilityDataManager* ADM = UAbilityDataManager::GetAbilityDataManager();
+	TSubclassOf<UVSAbility> FindedAbility = ADM->FindAbility(InCode);
+	const UVSAbility* AbObj = StaticCast<UVSAbility*>(FindedAbility->GetDefaultObject());
+
+	if (AbObj == nullptr) return;
+
+	int CurrentLevel = GetAbilityLevel(InCode);
+	if(CurrentLevel == 0 && 0 < NewLevel) { AbObj->PreAddInBook(this); }	
+
+	SetOrAddPage(InCode, NewLevel, false);
+}
+
 void UAbilityBookComponent::SetOrAddPage(FName InCode, int NewLevel, bool bForced)
 {
 	const UAbilityDataManager* ADM = UAbilityDataManager::GetAbilityDataManager();
@@ -119,6 +133,11 @@ void UAbilityBookComponent::SetOrAddPage(FName InCode, int NewLevel, bool bForce
 	TargetPages.Emplace(NewPage);
 
 	GiveAbility(*NewPage);
+
+	if (OnUpdateBookDelegate.IsBound())
+	{
+		OnUpdateBookDelegate.Broadcast(this);
+	}
 }
 
 
@@ -230,7 +249,7 @@ void UAbilityBookComponent::GetLevelUpTargetArray(TArray<FAbilityLevelUpTargetIn
 		int TargetLv = FMath::Min<int>(CurrentLv + TargetLevel, TempObj->GetMaxLevel());
 
 		//책안에 설정될 수 있는지
-		if(!TempObj->CanSetOrAddInBook(*this, TargetLv)) {continue;}
+		if(!TempObj->CanSetOrAddInBook(this, TargetLv)) {continue;}
 
 		if (TempArray.Num() < Count)
 		{
@@ -273,7 +292,7 @@ void UAbilityBookComponent::GetLevelUpTargetArray(TArray<FAbilityLevelUpTargetIn
 		int TargetLv = FMath::Min<int>(CurrentLv + TargetLevel, TempObj->GetMaxLevel());
 
 		//책안에 설정될 수 있는지
-		if (!TempObj->CanSetOrAddInBook(*this, TargetLv)) { continue; }
+		if (!TempObj->CanSetOrAddInBook(this, TargetLv)) { continue; }
 
 		if (TempArray.Num() < Count)
 		{
@@ -314,7 +333,7 @@ void UAbilityBookComponent::GetLevelUpTargetArray(TArray<FAbilityLevelUpTargetIn
 		int TargetLv = FMath::Min<int>(CurrentLv + TargetLevel, TempObj->GetMaxLevel());
 
 		//책안에 설정될 수 있는지
-		if (!TempObj->CanSetOrAddInBook(*this, TargetLv)) { continue; }
+		if (!TempObj->CanSetOrAddInBook(this, TargetLv)) { continue; }
 
 		if (TempArray.Num() < Count)
 		{
@@ -343,6 +362,19 @@ void UAbilityBookComponent::InitializeAddableAbilities(const FName& InCharacterN
 
 	AddableAbilities.Empty();
 	ADM->InitializeAddableAbilities(InCharacterName, AddableAbilities);
+}
+
+void UAbilityBookComponent::GetAbilityPageArray(TArray<const FAbilityPage*>& OutPage, EVSAbilityType InType) const
+{
+	check(InType != EVSAbilityType::None)
+
+	const TArray<TSharedPtr<FAbilityPage>>& TargetPages = InType == EVSAbilityType::Active ? ActivePages : PassivePages;
+	LOG_ERROR(TEXT("%d"), TargetPages.Num());
+
+	for (auto& Target : TargetPages)
+	{
+		OutPage.Add(Target.Get());
+	}
 }
 
 

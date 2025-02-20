@@ -34,9 +34,6 @@ void UVSGameInstance::LoadVSGame()
 	{
 		CurrentSave = Cast<UVSSaveGame>(UGameplayStatics::CreateSaveGameObject(UVSSaveGame::StaticClass()));
 
-#if WITH_EDITOR
-		CurrentSave->SetGold(5000);
-#endif
 
 		UGameplayStatics::SaveGameToSlot(CurrentSave, "ProjectVS", 0);
 

@@ -18,7 +18,7 @@ public:
 	UVSAbility_Flamethrower(const FObjectInitializer& ObjectInitializer);
 
 protected:
-	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
+	virtual void ActivateAbility_CPP(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 #if WITH_EDITOR
 protected:
 	virtual void PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent) override;
@@ -43,7 +43,7 @@ private:
 	TArray<float> FlameDamage;
 #endif
 
-	float GetFlameDamage(const FGameplayAbilitySpecHandle Handle, class UAbilitySystemComponent* InASC) const;
+	float GetFlameDamage(int InLevel, UAbilitySystemComponent* InASC) const;
 
 
 	UPROPERTY(EditDefaultsOnly, Category = "Flame", meta = (Categories = "Scale"))
@@ -54,7 +54,7 @@ private:
 	TArray<float> FlameScale;
 #endif
 
-	float GetFlameScale(const FGameplayAbilitySpecHandle Handle, class UAbilitySystemComponent* InASC) const;
+	float GetFlameScale(int InLevel, UAbilitySystemComponent* InASC) const;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Flame", meta = (Categories = "Duration"))
 	FGameplayTag FlameDurationTag;
@@ -64,6 +64,6 @@ private:
 	TArray<float> FlameDuration;
 #endif
 
-	float GetFlameDuration(const FGameplayAbilitySpecHandle Handle, class UAbilitySystemComponent* InASC) const;
+	float GetFlameDuration(int InLevel, UAbilitySystemComponent* InASC) const;
 
 };

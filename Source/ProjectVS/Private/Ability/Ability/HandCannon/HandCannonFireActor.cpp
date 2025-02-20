@@ -13,27 +13,11 @@
 
 
 // Sets default values
-AHandCannonFireActor::AHandCannonFireActor()
+AHandCannonFireActor::AHandCannonFireActor(const FObjectInitializer& ObjectInitializer)
+	:Super(ObjectInitializer)
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
-	
-	PivotRoot = CreateDefaultSubobject<USceneComponent>("PivotRoot");
-	SetRootComponent(PivotRoot);
-
-	Sprite = CreateOptionalDefaultSubobject<UPaperFlipbookComponent>("Sprite");
-	if (Sprite)
-	{
-		Sprite->AlwaysLoadOnClient = true;
-		Sprite->AlwaysLoadOnServer = true;
-		Sprite->bOwnerNoSee = false;
-		Sprite->bAffectDynamicIndirectLighting = false;
-		Sprite->PrimaryComponentTick.TickGroup = TG_PrePhysics;
-		Sprite->SetupAttachment(PivotRoot);
-		Sprite->SetGenerateOverlapEvents(false);
-
-		Sprite->SetLooping(true);
-	}
 }
 
 // Called when the game starts or when spawned
@@ -41,13 +25,14 @@ void AHandCannonFireActor::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	if (Sprite)
+	UPaperFlipbookComponent* Flipbook = GetFlipbookComponent();
+	if (Flipbook)
 	{
-		Sprite->SetLooping(false);
+		Flipbook->SetLooping(false);
 
-		Sprite->OnFinishedPlaying.AddDynamic(this, &AHandCannonFireActor::OnFinishedFire);
+		Flipbook->OnFinishedPlaying.AddDynamic(this, &AHandCannonFireActor::OnFinishedFire);
 
-		Sprite->OnComponentBeginOverlap.AddDynamic(this, &AHandCannonFireActor::OnBeginOverlapFire);
+		Flipbook->OnComponentBeginOverlap.AddDynamic(this, &AHandCannonFireActor::OnBeginOverlapFire);
 	}
 }
 
@@ -66,7 +51,8 @@ void AHandCannonFireActor::OnFinishedFire()
 
 void AHandCannonFireActor::OnBeginOverlapFire(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if(!DamageEffectSpecHandle.IsValid()) return;
+	FGameplayEffectSpecHandle DamageEffectSpecHandle = FindEffectSpec("FireDamage");
+	check(DamageEffectSpecHandle.IsValid())
 
 	IAbilitySystemInterface* ASI = Cast<IAbilitySystemInterface>(OtherActor);
 	if(ASI == nullptr) return;

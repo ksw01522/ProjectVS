@@ -142,6 +142,13 @@ void UAbilityTesterUtilityWidget::ApplyTestAbility()
 	}
 }
 
+void UAbilityTesterUtilityWidget::ReReadAbilityDataCSV()
+{
+	UAbilityEditorSubsystem* AES = UAbilityEditorSubsystem::GetAbilityEditorSubsystem();
+
+	AES->ReReadAbilityDataCSV();
+}
+
 
 void UAbilityTesterUtilityWidget::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {

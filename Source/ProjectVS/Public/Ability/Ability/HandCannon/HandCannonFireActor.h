@@ -3,28 +3,19 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
+#include "Ability/Ability/VSAbilityEffecter.h"
 #include "GameplayEffectTypes.h"
-#include "GenericTeamAgentInterface.h"
 #include "HandCannonFireActor.generated.h"
 
 UCLASS(Abstract)
-class PROJECTVS_API AHandCannonFireActor : public AActor, public IGenericTeamAgentInterface
+class PROJECTVS_API AHandCannonFireActor : public AVSAbilityEffecter
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
-	AHandCannonFireActor();
+	AHandCannonFireActor(const FObjectInitializer& ObjectInitializer);
 
-private:
-	UPROPERTY(Category = Topspin, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class USceneComponent> PivotRoot;
-
-	UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UPaperFlipbookComponent> Sprite;
-
-	FGameplayEffectSpecHandle DamageEffectSpecHandle;
 
 protected:
 	// Called when the game starts or when spawned
@@ -34,7 +25,6 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	
 
 private:
 	UFUNCTION()
@@ -44,7 +34,5 @@ private:
 	void OnBeginOverlapFire(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 public:
-	void SetDamageEffectSpecHandle(const FGameplayEffectSpecHandle& NewHandle) { DamageEffectSpecHandle = NewHandle; }
-
 	void SetFireSize(float NewSize);
 };

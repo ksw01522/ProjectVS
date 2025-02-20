@@ -12,27 +12,11 @@
 #include "GenericTeamAgentInterface.h"
 
 // Sets default values
-ACannonBallActor::ACannonBallActor()
+ACannonBallActor::ACannonBallActor(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
-	PivotRoot = CreateDefaultSubobject<USceneComponent>("PivotRoot");
-	SetRootComponent(PivotRoot);
-
-	Sprite = CreateOptionalDefaultSubobject<UPaperFlipbookComponent>("Sprite");
-	if (Sprite)
-	{
-		Sprite->AlwaysLoadOnClient = true;
-		Sprite->AlwaysLoadOnServer = true;
-		Sprite->bOwnerNoSee = false;
-		Sprite->bAffectDynamicIndirectLighting = false;
-		Sprite->PrimaryComponentTick.TickGroup = TG_PrePhysics;
-		Sprite->SetupAttachment(PivotRoot);
-		Sprite->SetGenerateOverlapEvents(false);
-
-		Sprite->SetLooping(true);
-	}
 }
 
 
@@ -42,7 +26,7 @@ void ACannonBallActor::BeginPlay()
 	Super::BeginPlay();
 	
 	RemainDistance = MaxDistance;
-	Sprite->OnComponentBeginOverlap.AddDynamic(this, &ACannonBallActor::OnBeginOverlapCannonBall);
+	GetFlipbookComponent()->OnComponentBeginOverlap.AddDynamic(this, &ACannonBallActor::OnBeginOverlapCannonBall);
 
 }
 
@@ -104,11 +88,13 @@ void ACannonBallActor::CannonBallExplosion()
 {
 	Velocity = FVector::ZeroVector;
 
-	Sprite->OnComponentBeginOverlap.RemoveDynamic(this, &ACannonBallActor::OnBeginOverlapCannonBall);
+	UPaperFlipbookComponent* Flipbook = GetFlipbookComponent();
 
-	Sprite->OnComponentBeginOverlap.AddDynamic(this, &ACannonBallActor::OnBeginOverlapExplosion);
+	Flipbook->OnComponentBeginOverlap.RemoveDynamic(this, &ACannonBallActor::OnBeginOverlapCannonBall);
 
-	Sprite->SetFlipbook(Flipbook_Explosion);
+	Flipbook->OnComponentBeginOverlap.AddDynamic(this, &ACannonBallActor::OnBeginOverlapExplosion);
+
+	Flipbook->SetFlipbook(Flipbook_Explosion);
 
 	DefaultScale = GetActorScale3D();
 	SetActorScale3D(FVector(0.25,0.25,0.25));
@@ -124,13 +110,15 @@ void ACannonBallActor::CannonBallAnim()
 	SetActorScale3D(GetActorScale3D() + DefaultScale * DeltaSeconds * 8);
 	if(DefaultScale.X < GetActorScale3D().X) {SetActorScale3D(DefaultScale); }
 
-	FLinearColor CurrentColor = Sprite->GetSpriteColor();
+	UPaperFlipbookComponent* Flipbook = GetFlipbookComponent();
+
+	FLinearColor CurrentColor = Flipbook->GetSpriteColor();
 	
 	CurrentColor.A -= 4 * DeltaSeconds;
 
 	if (CurrentColor.A <= 0) CurrentColor.A = 0;
 
-	Sprite->SetSpriteColor(CurrentColor);
+	Flipbook->SetSpriteColor(CurrentColor);
 	
 	if (0 < CurrentColor.A)
 	{

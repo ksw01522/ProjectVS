@@ -3,18 +3,17 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
-#include "GameplayEffectTypes.h"
+#include "Ability/Ability/VSAbilityEffecter.h"
 #include "TopspinActor.generated.h"
 
 UCLASS()
-class PROJECTVS_API ATopspinActor : public AActor
+class PROJECTVS_API ATopspinActor : public AVSAbilityEffecter
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
-	ATopspinActor();
+	ATopspinActor(const FObjectInitializer& ObjectInitializer);
 
 protected:
 	// Called when the game starts or when spawned
@@ -25,16 +24,8 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 private:
-	UPROPERTY(Category = Topspin, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class USceneComponent> PivotRoot;
-
-	UPROPERTY(Category = Topspin, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UPaperFlipbookComponent> Sprite;
-
 	UPROPERTY(Category = Sprite, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	float TopspinInterval = 0.25f;
-
-	FGameplayEffectSpecHandle DamageEffectSpecHandle;
 
 	int TopspinCount = 0;
 
@@ -49,8 +40,6 @@ private:
 	void OnBeginOverlapTopspin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 public:
-	void SetDamageEffectSpecHandle(const FGameplayEffectSpecHandle& NewHandle) { DamageEffectSpecHandle = NewHandle; }
-
 	void SetTopspinCount(int NewCount);
 	int GetTopspinCount() const { return TopspinCount;}
 

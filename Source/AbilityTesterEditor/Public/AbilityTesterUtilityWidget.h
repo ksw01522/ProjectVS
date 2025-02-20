@@ -75,6 +75,9 @@ private:
 	void OnChangedTestAbility();
 	void ApplyTestAbility();
 
+	UFUNCTION(BlueprintCallable, CallInEditor)
+	void ReReadAbilityDataCSV();
+
 protected:
 	virtual void PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent) override;
 

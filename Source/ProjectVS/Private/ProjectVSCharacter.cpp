@@ -23,6 +23,8 @@
 #include "PaperFlipbookComponent.h"
 #include "Tile/VSPaperTileMapActor.h"
 #include "Engine/OverlapResult.h"
+#include "Components/WidgetComponent.h"
+#include "Components/WidgetComponent.h"
 
 AProjectVSCharacter::AProjectVSCharacter()
 {
@@ -49,6 +51,7 @@ AProjectVSCharacter::AProjectVSCharacter()
 	PrimaryActorTick.bStartWithTickEnabled = true;
 
 	GetSprite()->SetNotifyRigidBodyCollision(false);
+
 }
 
 void AProjectVSCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

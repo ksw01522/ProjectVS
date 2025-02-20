@@ -17,7 +17,7 @@ class PROJECTVS_API UVSAbility_Topspin : public UVSAbility
 public:
 	UVSAbility_Topspin(const FObjectInitializer& ObjectInitializer);
 protected:
-	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
+	virtual void ActivateAbility_CPP(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Topspin")
@@ -49,11 +49,11 @@ private:
 #endif
 
 public:
-	float GetTopspinDamage(const FGameplayAbilitySpecHandle Handle, class UAbilitySystemComponent* InASC) const;
+	float GetTopspinDamage(int InLevel, UAbilitySystemComponent* InASC) const;
 
-	float GetTopspinScale(const FGameplayAbilitySpecHandle Handle, UAbilitySystemComponent* InASC) const;
+	float GetTopspinScale(int InLevel, UAbilitySystemComponent* InASC) const;
 
-	int GetTopspinCount(const FGameplayAbilitySpecHandle Handle, UAbilitySystemComponent* InASC) const;
+	int GetTopspinCount(int InLevel, UAbilitySystemComponent* InASC) const;
 
 #if WITH_EDITOR
 protected:

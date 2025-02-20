@@ -55,7 +55,7 @@ void UAbilityDataManager::CompleteLoadAbilities()
 #endif
 }
 
-TSubclassOf<UVSAbility> UAbilityDataManager::FindAbility(FName Code) const
+TSubclassOf<UVSAbility> UAbilityDataManager::FindAbility(const FName& Code) const
 {
 	if(!AbilityArray.Contains(Code)) return nullptr;
 
