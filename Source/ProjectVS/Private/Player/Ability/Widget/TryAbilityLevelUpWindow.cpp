@@ -23,13 +23,13 @@ void UTryAbilityLevelUpWindow::NativeConstruct()
 		if (UAbilityLevelUpWidget* TempLevelUpWidget = Cast<UAbilityLevelUpWidget>(Child))
 		{
 			LevelUpWidgets.Add(TempLevelUpWidget);
-			TempLevelUpWidget->OnSelectedLevelUpDelegate.AddUObject(this, &UTryAbilityLevelUpWindow::OnSlectedLevelUpWidget);
+			TempLevelUpWidget->OnSelectedLevelUpDelegate.AddUObject(this, &UTryAbilityLevelUpWindow::OnSelectedLevelUpWidget);
 		}
 	}
 }
 
 
-void UTryAbilityLevelUpWindow::OnSlectedLevelUpWidget()
+void UTryAbilityLevelUpWindow::OnSelectedLevelUpWidget()
 {
 	AProjectVSPlayerController* VSPC = GetOwningPlayer<AProjectVSPlayerController>();
 
@@ -66,10 +66,7 @@ void UTryAbilityLevelUpWindow::SetAbilityLevelUp(const TArray<FAbilityLevelUpTar
 {
 	int Size = Targets.Num();
 
-	for (auto& LevelUpWidget : LevelUpWidgets)
-	{
-		LevelUpWidget->SetVisibility(ESlateVisibility::Collapsed);
-	}
+	HiddenLevelUpWidgets();
 
 	for (int i = 0; i < Size; i++)
 	{

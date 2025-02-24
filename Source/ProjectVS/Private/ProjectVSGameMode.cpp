@@ -18,6 +18,7 @@
 #include "Player/VSPlayerState.h"
 #include "Tile/VSPaperTileMapActor.h"
 #include "Components/BoxComponent.h"
+#include "VSGameInstance.h"
 
 AProjectVSGameMode::AProjectVSGameMode(const FObjectInitializer& ObjectInitializer) :
 			Super(ObjectInitializer)
@@ -174,6 +175,7 @@ void AProjectVSGameMode::OnPlayerDead(AVSPlayerState* InPlayer)
 void AProjectVSGameMode::OnGameOver()
 {
 	APlayGameState* PlayGameState = GetGameState<APlayGameState>();
+	UVSGameInstance* VSGameInst = GetGameInstance<UVSGameInstance>();
 
 	if (bClearGame)
 	{
@@ -197,6 +199,9 @@ void AProjectVSGameMode::OnGameOver()
 			StaticCast<UStageResultWindow*>(NewWidget)->UpdateStageResultWindow();
 			NewWidget->AddToViewport(1);
 		}
+
+		AVSPlayerState* VSPlayerState = FirstLocal->GetPlayerState<AVSPlayerState>();
+		VSPlayerState->SaveGold();
 	}
 }
 

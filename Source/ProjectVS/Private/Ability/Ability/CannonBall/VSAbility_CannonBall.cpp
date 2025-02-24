@@ -15,9 +15,14 @@
 
 #include "Character/Monster/VSMonster.h"
 
+#include "Ability/AbilityBookComponent.h"
+
 #if WITH_EDITOR
 #include "Misc/DataValidation.h"
 #endif
+
+#define LOCTEXT_NAMESPACE "VSAbility"
+
 UVSAbility_CannonBall::UVSAbility_CannonBall(const FObjectInitializer& ObjectInitailizer)
 	:Super(ObjectInitailizer)
 {
@@ -252,6 +257,7 @@ float UVSAbility_CannonBall::GetCannonBallSpeed(int InLevel, UAbilitySystemCompo
 	return ReturnSpeed;
 }
 
+#if WITH_EDITOR
 void UVSAbility_CannonBall::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
@@ -291,3 +297,79 @@ void UVSAbility_CannonBall::NativeLoadDataFromDataManager()
 	ApplyDataFromDataManager(CannonBallDamageTag, CannonBallDamage);
 	ApplyDataFromDataManager(CannonBallScaleTag, CannonBallScale);
 }
+#endif
+
+FText UVSAbility_CannonBall::GetLeveUpDescriptionText_Implementation(const UAbilityBookComponent* InBook, int BeforeLevel, int AfterLevel) const
+{
+	TArray<FText> DescTexts;
+
+	float Value_Before = 0;
+	float Value_After = 0;
+
+	UAbilitySystemComponent* ASC = InBook == nullptr ? nullptr : InBook->GetAbilitySystemComponent();
+
+	//볼 데미지
+	{
+		Value_Before = GetCannonBallDamage(BeforeLevel, ASC);
+		Value_After = GetCannonBallDamage(AfterLevel, ASC);
+		if (Value_Before != Value_After)
+		{
+			FFormatOrderedArguments Args;
+			Args.Add(Value_Before);
+			Args.Add(Value_After);
+
+			DescTexts.Add(FText::Format(LOCTEXT("CannonBall_LevelUp Ball Damage", "캐논 볼 데미지 {0} -> {1}"), Args));
+		}
+	}
+
+	//폭발 데미지
+	{
+		Value_Before = GetExplosionDamage(BeforeLevel, ASC);
+		Value_After = GetExplosionDamage(AfterLevel, ASC);
+		if (Value_Before != Value_After)
+		{
+			FFormatOrderedArguments Args;
+			Args.Add(Value_Before);
+			Args.Add(Value_After);
+
+			DescTexts.Add(FText::Format(LOCTEXT("CannonBall_LevelUp Explosion Damage", "폭발 데미지 {0} -> {1}"), Args));
+		
+		}
+	}
+	
+	//캐논볼 크기
+	{
+		Value_Before = GetCannonBallScale(BeforeLevel, ASC);
+		Value_After = GetCannonBallScale(AfterLevel, ASC);
+
+		if (Value_Before != Value_After)
+		{
+			FFormatOrderedArguments Args;
+			Args.Add(Value_Before);
+			Args.Add(Value_After);
+
+			DescTexts.Add(FText::Format(LOCTEXT("CannonBall_LevelUp Scale", "캐논 볼 크기 {0} -> {1}"), Args));
+
+		}
+	}
+	
+	//캐논볼 속도
+	{
+		Value_Before = GetCannonBallSpeed(BeforeLevel, ASC);
+		Value_After = GetCannonBallSpeed(AfterLevel, ASC);
+
+		if (Value_Before != Value_After)
+		{
+			FFormatOrderedArguments Args;
+			Args.Add(Value_Before);
+			Args.Add(Value_After);
+
+			DescTexts.Add(FText::Format(LOCTEXT("CannonBall_LevelUp Speed", "캐논 볼 속도 {0} -> {1}"), Args));
+
+		}
+	}
+
+	return FText::Join(FText::FromString("\n"), DescTexts);
+}
+
+#undef LOCTEXT_NAMESPACE

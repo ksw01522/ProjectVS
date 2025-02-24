@@ -81,10 +81,12 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Debug", meta = (AllowPrivateAccess))
 	TObjectPtr<class UInputAction> ForceLevelUpAbilityAction;
 
+#endif WITH_EDITORONLY_DATA
+
+#if WITH_EDITOR
 	UFUNCTION()
 	void Debug_ForceLevelUpAbility();
-
-#endif WITH_EDITORONLY_DATA
+#endif
 };
 
 

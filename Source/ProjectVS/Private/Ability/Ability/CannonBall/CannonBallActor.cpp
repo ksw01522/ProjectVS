@@ -90,6 +90,8 @@ void ACannonBallActor::CannonBallExplosion()
 
 	UPaperFlipbookComponent* Flipbook = GetFlipbookComponent();
 
+	Flipbook->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
 	Flipbook->OnComponentBeginOverlap.RemoveDynamic(this, &ACannonBallActor::OnBeginOverlapCannonBall);
 
 	Flipbook->OnComponentBeginOverlap.AddDynamic(this, &ACannonBallActor::OnBeginOverlapExplosion);
@@ -100,7 +102,9 @@ void ACannonBallActor::CannonBallExplosion()
 	SetActorScale3D(FVector(0.25,0.25,0.25));
 
 	SetLifeSpan(0.25);
+	Flipbook->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	CannonBallAnim();
+
 }
 
 void ACannonBallActor::CannonBallAnim()

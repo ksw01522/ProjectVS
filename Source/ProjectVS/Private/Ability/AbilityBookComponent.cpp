@@ -21,6 +21,11 @@ UAbilityBookComponent::~UAbilityBookComponent()
 
 }
 
+UAbilitySystemComponent* UAbilityBookComponent::GetAbilitySystemComponent() const
+{
+	return WeakASC.Get();
+}
+
 void UAbilityBookComponent::RegisterAbilitySystem(UAbilitySystemComponent* InASC)
 {
 	//Check Valid

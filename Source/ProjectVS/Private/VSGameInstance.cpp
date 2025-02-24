@@ -23,8 +23,7 @@ void UVSGameInstance::Init()
 
 void UVSGameInstance::SaveVSGame()
 {
-	if(CurrentSave == nullptr) return;
-
+	check(CurrentSave)
 	UGameplayStatics::SaveGameToSlot(CurrentSave, "ProjectVS", 0);
 }
 
@@ -43,7 +42,7 @@ void UVSGameInstance::LoadVSGame()
 	CurrentSave = Cast<UVSSaveGame>(UGameplayStatics::LoadGameFromSlot("ProjectVS", 0));
 
 #if WITH_EDITOR
-	if (CurrentSave->GetGold() < 5000)
+	if (CurrentSave->GetGold() < 5000 && false)
 	{
 		CurrentSave->SetGold(5000);
 	}

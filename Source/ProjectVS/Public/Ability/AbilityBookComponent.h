@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "GameplayAbilitySpecHandle.h"
+#include "AbilitySystemInterface.h"
 #include "AbilityBookComponent.generated.h"
 
 class UAbilityBookComponent;
@@ -63,7 +64,7 @@ struct FAbilityLevelUpTargetInfo
 };
 
 UCLASS()
-class PROJECTVS_API UAbilityBookComponent : public UActorComponent
+class PROJECTVS_API UAbilityBookComponent : public UActorComponent, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 
@@ -113,6 +114,8 @@ public:
 protected:
 
 public:
+	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+
 	void RegisterAbilitySystem(UAbilitySystemComponent* InASC);
 		
 	void UnregisterAbilitySystem(UAbilitySystemComponent* InASC);

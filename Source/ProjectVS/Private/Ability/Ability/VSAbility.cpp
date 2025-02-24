@@ -29,7 +29,9 @@ UVSAbility::UVSAbility(const FObjectInitializer& ObjectInitializer)	: Super(Obje
 
 	CooldownGameplayEffectClass = UCooldownEffect::StaticClass();
 
+#if WITH_EDITORONLY_DATA
 	MaxLevel = 1;
+#endif
 
 	SourceBlockedTags.AddTag(FGameplayTag::RequestGameplayTag(FName("State.Dead")));
 }
@@ -62,8 +64,6 @@ void UVSAbility::PostLoad()
 	}
 #endif
 
-	LOG_ERROR(TEXT("Call PostLoad"));
-
 #if WITH_EDITOR
 	if (GetFlags() || EObjectFlags::RF_ClassDefaultObject)
 	{
@@ -94,8 +94,6 @@ void UVSAbility::PreSave(FObjectPreSaveContext ObjectSaveContext)
 		// Bundles may have changed, refresh
 		UAssetManager::Get().RefreshAssetData(this);
 	}
-
-	LOG_ERROR(TEXT("Call PreSave"));
 
 #if WITH_EDITOR
 	//Editor to CSV Write

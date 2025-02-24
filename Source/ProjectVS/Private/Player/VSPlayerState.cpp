@@ -25,6 +25,8 @@
 
 #include "ProjectVSGameMode.h"
 
+#include "Player/HPRegenEffect.h"
+
 AVSPlayerState::AVSPlayerState()
 {	
 	ASC = CreateDefaultSubobject<UAbilitySystemComponent>("AbilitySystem");
@@ -49,6 +51,8 @@ void AVSPlayerState::BeginPlay()
 		if (UVSLocalPlayer* LocalPlayer = Cast<UVSLocalPlayer>(PlayerController->GetLocalPlayer()))
 		{
 			SetCharacterName(LocalPlayer->GetSelectedCharacterName());
+
+
 		}
 	}
 
@@ -152,6 +156,10 @@ void AVSPlayerState::InitializeASC()
 		}
 	}
 
+	//HPRegen Effect
+	FGameplayEffectSpecHandle HPRegenSpecHandle = ASC->MakeOutgoingSpec(UHPRegenEffect::StaticClass(), 1, ASC->MakeEffectContext());
+	ASC->ApplyGameplayEffectSpecToSelf(*HPRegenSpecHandle.Data);
+
 	//HP의 변화에 따른 이벤트
 	ASC->GetGameplayAttributeValueChangeDelegate(UAttributeSet_Default::GetHPAttribute()).AddUObject(this, &AVSPlayerState::OnHPChanged);
 }
@@ -215,7 +223,7 @@ void AVSPlayerState::SaveGold_Implementation()
 
 	GameInst->GainGold(ATS_Player->GetGold());
 
-
+	GameInst->SaveVSGame();
 }
 
 

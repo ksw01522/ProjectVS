@@ -183,12 +183,12 @@ void AProjectVSPlayerController::OnPlayerLevelUp(int BeforeLevel, int AfterLevel
 
 
 
-
+#if WITH_EDITOR
 void AProjectVSPlayerController::Debug_ForceLevelUpAbility()
 {
 	AddAbilityLevelUpCount(1);
 }
-
+#endif
 void AProjectVSPlayerController::AddAbilityLevelUpCount(int InCount)
 {
 	if (GetLocalRole() != ROLE_Authority) { return; }

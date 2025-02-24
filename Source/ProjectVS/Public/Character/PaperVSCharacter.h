@@ -21,6 +21,7 @@ public:
 
 protected:
 	virtual void Tick(float DeltaSeconds) override;
+	virtual void BeginPlay() override;
 
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Character", meta = (AllowPrivateAccess = "true"))

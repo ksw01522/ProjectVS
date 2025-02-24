@@ -25,6 +25,9 @@ protected:
 	virtual void PreAddInBook_Implementation(class UAbilityBookComponent* InBook) const override;
 	virtual bool CanSetOrAddInBook_Implementation(const class UAbilityBookComponent* InBook, int NewLevel) const override;
 
+	virtual FText GetLeveUpDescriptionText_Implementation(const UAbilityBookComponent* InBook, int BeforeLevel, int AfterLevel) const override;
+
+
 #if WITH_EDITOR
 protected:
 	virtual void PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent) override;

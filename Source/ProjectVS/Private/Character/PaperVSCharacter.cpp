@@ -53,6 +53,13 @@ void APaperVSCharacter::Tick(float DeltaSeconds)
 	}
 }
 
+void APaperVSCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	UpdateHPBarWidget();
+}
+
 
 UAbilitySystemComponent* APaperVSCharacter::GetAbilitySystemComponent() const
 {

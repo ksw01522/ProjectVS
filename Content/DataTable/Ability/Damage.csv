@@ -1,8 +1,8 @@
 Name/Level,1,2,3,4,5,6,7,8
-HandCannon,10,20,30,30,30,30,30,30
-Topspin,10,20,30,40,50,60,70,80
-Flamethrower,10,20,30,40,50,60,70,80
-CannonBall.Ball,10,10,10,10,10,10,10,10
-CannonBall.Explosion,20,20,20,20,20,20,20,20
-Gundance.Blade,50,,,,,,,
-Gundance.Shot,50,,,,,,,
+HandCannon,10,20,20,30,40,40,50,60
+Topspin,10,20,30,40,50,50,60,70
+Flamethrower,20,40,60,60,60,60,60,60
+CannonBall.Ball,10,20,20,20,30,30,30,30
+CannonBall.Explosion,20,20,40,60,60,70,80,90
+Gundance.Blade,80,,,,,,,
+Gundance.Shot,80,,,,,,,

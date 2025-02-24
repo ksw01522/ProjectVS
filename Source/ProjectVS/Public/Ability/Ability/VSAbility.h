@@ -167,7 +167,7 @@ public:
 	UFUNCTION(BlueprintPure, BlueprintNativeEvent)
 	FText GetLeveUpDescriptionText(const UAbilityBookComponent* InBook, int BeforeLevel, int AfterLevel) const;
 
-protected:
+public:
 	virtual FText GetDescriptionText_Implementation() const;
 
 	virtual FText GetLeveUpDescriptionText_Implementation(const UAbilityBookComponent* InBook, int BeforeLevel, int AfterLevel) const;

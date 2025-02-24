@@ -18,6 +18,7 @@ public:
 	UVSAbility_Topspin(const FObjectInitializer& ObjectInitializer);
 protected:
 	virtual void ActivateAbility_CPP(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
+	virtual FText GetLeveUpDescriptionText_Implementation(const UAbilityBookComponent* InBook, int BeforeLevel, int AfterLevel) const override;
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Topspin")

@@ -11,6 +11,10 @@
 #include "ProjectVS.h"
 #include "TopspinActor.h"
 
+#include "Ability/AbilityBookComponent.h"
+
+#define LOCTEXT_NAMESPACE "VSAbility"
+
 UVSAbility_Topspin::UVSAbility_Topspin(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	SetAbilityType(EVSAbilityType::Active);
@@ -61,6 +65,61 @@ void UVSAbility_Topspin::ActivateAbility_CPP(const FGameplayAbilitySpecHandle Ha
 	}
 
 	EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
+}
+
+FText UVSAbility_Topspin::GetLeveUpDescriptionText_Implementation(const UAbilityBookComponent* InBook, int BeforeLevel, int AfterLevel) const
+{
+	TArray<FText> DescTexts;
+
+	float Value_Before = 0;
+	float Value_After = 0;
+
+	UAbilitySystemComponent* ASC = InBook == nullptr ? nullptr : InBook->GetAbilitySystemComponent();
+
+	//탑스핀 데미지
+	{
+		Value_Before = GetTopspinDamage(BeforeLevel, ASC);
+		Value_After = GetTopspinDamage(AfterLevel, ASC);
+		if (Value_Before != Value_After)
+		{
+			FFormatOrderedArguments Args;
+			Args.Add(Value_Before);
+			Args.Add(Value_After);
+
+			DescTexts.Add(FText::Format(LOCTEXT("Topspin_LevelUp Damage", "탑스핀 데미지 {0} -> {1}"), Args));
+		}
+	}
+
+	//발사 크기
+	{
+		Value_Before = GetTopspinScale(BeforeLevel, ASC);
+		Value_After = GetTopspinScale(AfterLevel, ASC);
+		if (Value_Before != Value_After)
+		{
+			FFormatOrderedArguments Args;
+			Args.Add(Value_Before);
+			Args.Add(Value_After);
+
+			DescTexts.Add(FText::Format(LOCTEXT("Topspin_LevelUp Scale", "탑스핀 크기 {0} -> {1}"), Args));
+		}
+	}
+
+	//발사 회수
+	{
+		Value_Before = GetTopspinCount(BeforeLevel, ASC);
+		Value_After = GetTopspinCount(AfterLevel, ASC);
+		if (Value_Before != Value_After)
+		{
+			FFormatOrderedArguments Args;
+			Args.Add(Value_Before);
+			Args.Add(Value_After);
+
+			DescTexts.Add(FText::Format(LOCTEXT("Topspin_LevelUp Damage", "탑스핀 회수 {0} -> {1}"), Args));
+		}
+	}
+
+
+	return FText::Join(FText::FromString("\n"), DescTexts);
 }
 
 float UVSAbility_Topspin::GetTopspinDamage(int InLevel, UAbilitySystemComponent* InASC) const
@@ -200,3 +259,5 @@ void UVSAbility_Topspin::NativeLoadDataFromDataManager()
 	ApplyDataFromDataManager(TopspinCountTag, TopspinCount);
 }
 #endif
+
+#undef LOCTEXT_NAMESPACE

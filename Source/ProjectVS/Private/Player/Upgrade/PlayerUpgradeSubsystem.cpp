@@ -11,6 +11,7 @@
 #include "Ability/AttributeSet_Default.h"
 #include "Ability/AttributeSet_Player.h"
 #include "Player/InitAttributeEffect_Player.h"
+#include "AbilitySystemComponent.h"
 
 #if WITH_EDITOR
 	#define bDebug true
@@ -114,6 +115,9 @@ void UPlayerUpgradeSubsystem::GetAllUpgradeAssets(TArray<const UUpgradeDataAsset
 		Out.Add(Asset.Value);
 	}
 }
+
+
+
 
 
 #if WITH_EDITOR

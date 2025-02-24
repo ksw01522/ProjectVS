@@ -51,7 +51,7 @@ void AFlamethrowerActor::FlameStart()
 
 	FlameFlipbook->PlayFromStart();
 
-	static float FlameTickinterval = 0.25;
+	static float FlameTickinterval = 0.1;
 	TimerManager.SetTimer(TimerHandle_FlameTick, this, &AFlamethrowerActor::FlameTick, FlameTickinterval, true);
 }
 

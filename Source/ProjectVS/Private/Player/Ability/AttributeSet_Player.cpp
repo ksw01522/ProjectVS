@@ -7,8 +7,9 @@
 #include "GameplayEffectExtension.h"
 #include "VSGameInstance.h"
 
-#define MUST_DEBUG false
-
+#if WITH_EDITOR
+	#define MUST_DEBUG false
+#endif WITH_EDITOR
 void UAttributeSet_Player::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	DOREPLIFETIME_CONDITION_NOTIFY(UAttributeSet_Player, HPRegen, COND_None, REPNOTIFY_Always);
@@ -54,15 +55,6 @@ bool UAttributeSet_Player::PreGameplayEffectExecute(FGameplayEffectModCallbackDa
 	if (Data.EvaluatedData.Attribute == GetGoldAttribute() && Data.EvaluatedData.ModifierOp == EGameplayModOp::Additive)
 	{
 		float FinalGold = Data.EvaluatedData.Magnitude * GetGreed();
-
-#if WITH_EDITOR
-		if (MUST_DEBUG)
-		{
-			LOG_WARNING(TEXT("Gain Gold : Base = %.1f, Greed = %.2f, Final = %.1f"), Data.EvaluatedData.Magnitude, GetGreed(), FinalGold);
-		}
-		UVSGameInstance* GameInst = GetOwningActor()->GetGameInstance<UVSGameInstance>();
-		GameInst->GainGold(FinalGold);
-#endif
 
 		Data.EvaluatedData.Magnitude = FinalGold;
 		return true;

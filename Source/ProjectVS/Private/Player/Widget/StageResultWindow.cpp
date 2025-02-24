@@ -28,9 +28,6 @@ void UStageResultWindow::OnClickedToTileBTN()
 	AProjectVSPlayerController* PlayerController = GetOwningPlayer<AProjectVSPlayerController>();
 	if(PlayerController == nullptr) return;
 
-	AVSPlayerState* PlayerState = GetOwningPlayerState<AVSPlayerState>();
-	PlayerState->SaveGold();
-
 	UVSGameInstance* VSGameInst = GetGameInstance<UVSGameInstance>();
 	VSGameInst->LoadTitleMap();
 }

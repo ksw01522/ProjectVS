@@ -83,4 +83,7 @@ protected:
 	virtual void NativeLoadDataFromDataManager() override;
 #endif
 
+protected:
+	virtual FText GetLeveUpDescriptionText_Implementation(const UAbilityBookComponent* InBook, int BeforeLevel, int AfterLevel) const override;
+
 };

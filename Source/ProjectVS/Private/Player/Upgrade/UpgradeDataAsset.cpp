@@ -6,11 +6,8 @@
 
 FPrimaryAssetId UUpgradeDataAsset::GetPrimaryAssetId() const
 {
-	if(!HasAnyFlags(RF_ClassDefaultObject)) return FPrimaryAssetId();
 
-	LOG_ERROR(TEXT("Asset Name : %s"), *GetFName().ToString());
-
-	return FPrimaryAssetId("UpgradeData", GetFName());
+	return FPrimaryAssetId("UpgradeData", UpgradeName);
 }
 
 float UUpgradeDataAsset::GetPower(int Level) const

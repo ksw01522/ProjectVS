@@ -28,7 +28,7 @@ protected:
 	virtual void NativeConstruct() override;
 
 private:
-	void OnSlectedLevelUpWidget();
+	void OnSelectedLevelUpWidget();
 
 public:
 	void AddLevelUpWidget(class UAbilityLevelUpWidget* Target);

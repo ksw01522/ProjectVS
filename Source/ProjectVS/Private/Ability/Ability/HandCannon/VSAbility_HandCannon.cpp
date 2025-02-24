@@ -15,10 +15,13 @@
 
 #include "Character/Monster/VSMonster.h"
 
+#include "Ability/AbilityBookComponent.h"
+
 #if WITH_EDITOR
 #include "Misc/DataValidation.h"
 #endif
 
+#define LOCTEXT_NAMESPACE "VSAbility"
 
 UVSAbility_HandCannon::UVSAbility_HandCannon(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -47,6 +50,61 @@ void UVSAbility_HandCannon::ActivateAbility_CPP(const FGameplayAbilitySpecHandle
 	FireHandCannon(Handle, InASC, FireRotation, FinalFireDamage, FinalFireScale, FinalFireCount);
 
 	EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
+}
+
+FText UVSAbility_HandCannon::GetLeveUpDescriptionText_Implementation(const UAbilityBookComponent* InBook, int BeforeLevel, int AfterLevel) const
+{
+	TArray<FText> DescTexts;
+
+	float Value_Before = 0;
+	float Value_After = 0;
+
+	UAbilitySystemComponent* ASC = InBook == nullptr ? nullptr : InBook->GetAbilitySystemComponent();
+
+	//발사 데미지
+	{
+		Value_Before = GetFireDamage(BeforeLevel, ASC);
+		Value_After = GetFireDamage(AfterLevel, ASC);
+		if (Value_Before != Value_After)
+		{
+			FFormatOrderedArguments Args;
+			Args.Add(Value_Before);
+			Args.Add(Value_After);
+
+			DescTexts.Add(FText::Format(LOCTEXT("HandCannon_LevelUp Damage", "발사 데미지 {0} -> {1}"), Args));
+		}
+	}
+
+	//발사 크기
+	{
+		Value_Before = GetFireScale(BeforeLevel, ASC);
+		Value_After = GetFireScale(AfterLevel, ASC);
+		if (Value_Before != Value_After)
+		{
+			FFormatOrderedArguments Args;
+			Args.Add(Value_Before);
+			Args.Add(Value_After);
+
+			DescTexts.Add(FText::Format(LOCTEXT("HandCannon_LevelUp Scale", "발사 크기 {0} -> {1}"), Args));
+		}
+	}
+
+	//발사 회수
+	{
+		Value_Before = GetFireCount(BeforeLevel, ASC);
+		Value_After = GetFireCount(AfterLevel, ASC);
+		if (Value_Before != Value_After)
+		{
+			FFormatOrderedArguments Args;
+			Args.Add(Value_Before);
+			Args.Add(Value_After);
+
+			DescTexts.Add(FText::Format(LOCTEXT("HandCannon_LevelUp Damage", "발사 회수 {0} -> {1}"), Args));
+		}
+	}
+
+
+	return FText::Join(FText::FromString("\n"), DescTexts);
 }
 
 
@@ -294,3 +352,5 @@ void UVSAbility_HandCannon::FireHandCannon(const FGameplayAbilitySpecHandle Hand
 		AvatarActor->GetWorld()->GetTimerManager().SetTimer(TempTimer, TimerDel, 0.1, false);
 	}
 }
+
+#undef LOCTEXT_NAMESPACE

@@ -10,6 +10,10 @@
 #include "Ability/AttributeSet_Player.h"
 #include "ProjectVS.h"
 
+#include "Ability/AbilityBookComponent.h"
+
+#define LOCTEXT_NAMESPACE "VSAbility"
+
 UVSAbility_Flamethrower::UVSAbility_Flamethrower(const FObjectInitializer& ObjectInitializer)
 						: Super(ObjectInitializer)
 {
@@ -50,7 +54,7 @@ void UVSAbility_Flamethrower::ActivateAbility_CPP(const FGameplayAbilitySpecHand
 	if (AFlamethrowerActor* NewFlamethrowerActor = InWorld->SpawnActorDeferred<AFlamethrowerActor>(FlamethrowerActorClass, SpawnTransform))
 	{
 		FGameplayEffectSpecHandle NewDamageEffectSpecHandle = MakeOutgoingGameplayEffectSpec(Handle, ActorInfo, ActivationInfo, UDamageEffect::StaticClass(), 1);
-		NewDamageEffectSpecHandle.Data->SetSetByCallerMagnitude(UAttributeSet_Default::GetDamageName(), FinalFlameDamage * 0.25);
+		NewDamageEffectSpecHandle.Data->SetSetByCallerMagnitude(UAttributeSet_Default::GetDamageName(), FinalFlameDamage * 0.1);
 
 		NewFlamethrowerActor->AddEffectSpec("FlameDamage", NewDamageEffectSpecHandle);
 
@@ -65,6 +69,64 @@ void UVSAbility_Flamethrower::ActivateAbility_CPP(const FGameplayAbilitySpecHand
 
 
 	EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
+}
+
+FText UVSAbility_Flamethrower::GetLeveUpDescriptionText_Implementation(const UAbilityBookComponent* InBook, int BeforeLevel, int AfterLevel) const
+{
+	TArray<FText> DescTexts;
+
+	float Value_Before = 0;
+	float Value_After = 0;
+
+	UAbilitySystemComponent* ASC = InBook == nullptr ? nullptr : InBook->GetAbilitySystemComponent();
+
+	//화염 데미지
+	{
+		Value_Before = GetFlameDamage(BeforeLevel, ASC);
+		Value_After = GetFlameDamage(AfterLevel, ASC);
+		if (Value_Before != Value_After)
+		{
+			FFormatOrderedArguments Args;
+			Args.Add(Value_Before);
+			Args.Add(Value_After);
+
+			DescTexts.Add(FText::Format(LOCTEXT("Flamethrower_LevelUp Damage", "화염 데미지 {0} -> {1}"), Args));
+		}
+	}
+
+	//화염 지속시간
+	{
+		Value_Before = GetFlameDuration(BeforeLevel, ASC);
+		Value_After = GetFlameDuration(AfterLevel, ASC);
+		if (Value_Before != Value_After)
+		{
+			FFormatOrderedArguments Args;
+			Args.Add(Value_Before);
+			Args.Add(Value_After);
+
+			DescTexts.Add(FText::Format(LOCTEXT("Flamethrower_LevelUp Duration", "지속시간 {0} -> {1}"), Args));
+
+		}
+	}
+
+	//화염 크기
+	{
+		Value_Before = GetFlameScale(BeforeLevel, ASC);
+		Value_After = GetFlameScale(AfterLevel, ASC);
+
+		if (Value_Before != Value_After)
+		{
+			FFormatOrderedArguments Args;
+			Args.Add(Value_Before);
+			Args.Add(Value_After);
+
+			DescTexts.Add(FText::Format(LOCTEXT("Flamethrower_LevelUp Scale", "화염 크기 {0} -> {1}"), Args));
+
+		}
+	}
+
+
+	return FText::Join(FText::FromString("\n"), DescTexts);
 }
 
 #if WITH_EDITOR
@@ -211,3 +273,5 @@ float UVSAbility_Flamethrower::GetFlameDuration(int InLevel, UAbilitySystemCompo
 
 	return RangeRate;
 }
+
+#undef LOCTEXT_NAMESPACE

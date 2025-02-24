@@ -22,9 +22,10 @@ public:
 protected:
 	virtual void Init() override;
 
+public:
+	void SaveVSGame();
 
 private:
-	void SaveVSGame();
 	void LoadVSGame();
 
 private:

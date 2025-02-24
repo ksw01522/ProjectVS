@@ -15,6 +15,8 @@
 
 #include "Ability/AbilityDataManager.h"
 
+#define LOCTEXT_NAMESPACE "VSAbility"
+
 UVSAbility_Gundance::UVSAbility_Gundance(const FObjectInitializer& ObjectInitializer)
 	:Super(ObjectInitializer)
 {
@@ -92,6 +94,98 @@ bool UVSAbility_Gundance::CanSetOrAddInBook_Implementation(const UAbilityBookCom
 	}
 
 	return true;
+}
+
+FText UVSAbility_Gundance::GetLeveUpDescriptionText_Implementation(const UAbilityBookComponent* InBook, int BeforeLevel, int AfterLevel) const
+{
+	TArray<FText> DescTexts;
+
+	float Value_Before = 0;
+	float Value_After = 0;
+
+	UAbilitySystemComponent* ASC = InBook == nullptr ? nullptr : InBook->GetAbilitySystemComponent();
+
+	//칼춤 데미지
+	{
+		Value_Before = GetBladeDamage(BeforeLevel, ASC);
+		Value_After = GetBladeDamage(AfterLevel, ASC);
+
+		if (Value_Before != Value_After)
+		{
+			FFormatOrderedArguments Args;
+			Args.Add(Value_Before);
+			Args.Add(Value_After);
+
+			DescTexts.Add(FText::Format(LOCTEXT("Gundance_LevelUp Blade Damage", "칼춤 데미지 {0} -> {1}"), Args));
+
+		}
+	}
+
+	//총 데미지
+	{
+		Value_Before = GetShotDamage(BeforeLevel, ASC);
+		Value_After = GetShotDamage(AfterLevel, ASC);
+
+		if (Value_Before != Value_After)
+		{
+			FFormatOrderedArguments Args;
+			Args.Add(Value_Before);
+			Args.Add(Value_After);
+
+			DescTexts.Add(FText::Format(LOCTEXT("Gundance_LevelUp Shot Damage", "총 데미지 {0} -> {1}"), Args));
+
+		}
+	}
+
+	//춤 크기
+	{
+		Value_Before = GetDanceScale(BeforeLevel, ASC);
+		Value_After = GetDanceScale(AfterLevel, ASC);
+
+		if (Value_Before != Value_After)
+		{
+			FFormatOrderedArguments Args;
+			Args.Add(Value_Before);
+			Args.Add(Value_After);
+
+			DescTexts.Add(FText::Format(LOCTEXT("Gundance_LevelUp Scale", "춤 크기 {0} -> {1}"), Args));
+
+		}
+	}
+
+	//춤 회수
+	{
+		Value_Before = GetDanceCount(BeforeLevel, ASC);
+		Value_After = GetDanceCount(AfterLevel, ASC);
+
+		if (Value_Before != Value_After)
+		{
+			FFormatOrderedArguments Args;
+			Args.Add(Value_Before);
+			Args.Add(Value_After);
+
+			DescTexts.Add(FText::Format(LOCTEXT("Gundance_LevelUp Count", "춤 횟수 {0} -> {1}"), Args));
+
+		}
+	}
+
+	//춤 간격
+	{
+		Value_Before = GetTimeBetweenDance(BeforeLevel, ASC);
+		Value_After = GetTimeBetweenDance(AfterLevel, ASC);
+
+		if (Value_Before != Value_After)
+		{
+			FFormatOrderedArguments Args;
+			Args.Add(Value_Before);
+			Args.Add(Value_After);
+
+			DescTexts.Add(FText::Format(LOCTEXT("Gundance_LevelUp TimeBetweenDance", "춤 간격 {0} -> {1}"), Args));
+
+		}
+	}
+
+	return FText::Join(FText::FromString("\n"), DescTexts);
 }
 
 #if WITH_EDITOR
@@ -353,3 +447,5 @@ void UVSAbility_Gundance::OnFinishedGundance(int32 ActionNumber)
 
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 }
+
+#undef LOCTEXT_NAMESPACE
