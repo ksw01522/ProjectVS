@@ -139,6 +139,8 @@ void UUpgradeWindowWidget::RefreshFocusedWidget()
 
 		bool CanUpgrade = UpgradeGold <= CurrentGold;
 		UpgradeButton->SetIsEnabled(CanUpgrade);
+
+		DescriptionText->SetText(FocusedUpgrade->GetDescriptionText());
 	}
 	else
 	{
@@ -149,6 +151,8 @@ void UUpgradeWindowWidget::RefreshFocusedWidget()
 		UpgradeButton->SetIsEnabled(false);
 
 		UpgradeGoldText->SetText(FText::GetEmpty());
+
+		DescriptionText->SetText(FText::GetEmpty());
 	}
 
 	

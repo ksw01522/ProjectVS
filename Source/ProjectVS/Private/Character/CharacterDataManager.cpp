@@ -95,8 +95,6 @@ void UCharacterDataManager::CreateMonsterClassTable()
         const FString MonsterCode = KeyName.ToString();
         const FString MonsterClassPath = RootFolderPath + MonsterCode + "/" + MonsterCode + "." + MonsterCode + "_C";
 
-        LOG_ERROR(TEXT("%s"), *MonsterClassPath);
-
         TSubclassOf<AVSMonster> LoadedClass = StaticLoadClass(AVSMonster::StaticClass(), this, *MonsterClassPath);
   
         #if WITH_EDITOR

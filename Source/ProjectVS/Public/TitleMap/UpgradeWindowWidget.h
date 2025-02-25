@@ -39,6 +39,9 @@ private:
 	TObjectPtr<class URichTextBlock> UpgradeGoldText;
 
 	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class URichTextBlock> DescriptionText;
+
+	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UButton> ExitButton;
 
 	UPROPERTY(meta = (BindWidget))

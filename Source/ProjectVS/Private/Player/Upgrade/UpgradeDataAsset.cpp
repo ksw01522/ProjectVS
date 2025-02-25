@@ -23,3 +23,12 @@ int UUpgradeDataAsset::GetGoldForUpgrade(int Level) const
 
 	return BaseGold + Level * GoldPerLevel;
 }
+
+FText UUpgradeDataAsset::GetDescriptionText() const
+{
+	FFormatNamedArguments Args;
+	Args.Add("Name", UpgradeNameText);
+	Args.Add("Power", PowerPerLevel);
+
+	return FText::Format(NSLOCTEXT("VSUpgrade", "Upgrade Description", "{Name}를 레벨당 {Power}증가 시킵니다."), Args);
+}

@@ -116,6 +116,18 @@ FText UUpgradeWidget::GetNameText() const
 	}
 }
 
+FText UUpgradeWidget::GetDescriptionText() const
+{
+	if (WeakTargetData.IsValid())
+	{
+		return WeakTargetData->GetDescriptionText();
+	}
+	else
+	{
+		return FText::GetEmpty();
+	}
+}
+
 UTexture2D* UUpgradeWidget::GetIconImage() const
 {
 	if (WeakTargetData.IsValid())

@@ -131,9 +131,6 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = Ability)
 	EVSAbilityType GetAbilityType() const {return AbilityType;}
-	
-	UFUNCTION(BlueprintPure)
-	virtual bool IsEvolutionAbility() const { return false; }
 
 	virtual bool CanEnterAbilityBook(class UAbilityBookComponent* InBook) const { return true; }
 

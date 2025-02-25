@@ -52,4 +52,6 @@ public:
 	int GetGoldForUpgrade(int Level) const;
 
 	UTexture2D* GetIconImage() const { return Icon.Get(); }
+
+	FText GetDescriptionText() const;
 };

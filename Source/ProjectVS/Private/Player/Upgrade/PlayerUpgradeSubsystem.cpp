@@ -59,7 +59,7 @@ void UPlayerUpgradeSubsystem::GetAssetIdsToLoad(TArray<struct FPrimaryAssetId>& 
 
 void UPlayerUpgradeSubsystem::StartLoadUpgradeDataAsset()
 {
-	LOG_WARNING(TEXT("Start Load UpgradeDataAsset"));
+	LOG_INFO(TEXT("Start Load UpgradeDataAsset"));
 
 	UAssetManager& AssetManager = UAssetManager::Get();
 
@@ -71,7 +71,7 @@ void UPlayerUpgradeSubsystem::StartLoadUpgradeDataAsset()
 
 void UPlayerUpgradeSubsystem::CompleteLoadUpgradDataAsset()
 {
-	LOG_WARNING(TEXT("Complete Load UpgradeDataAsset"));
+	
 	UAssetManager& AssetManager = UAssetManager::Get();
 
 	FPrimaryAssetType TargetType = GetTargetPrimaryAssetType();
@@ -89,6 +89,8 @@ void UPlayerUpgradeSubsystem::CompleteLoadUpgradDataAsset()
 	bLoadComplete = true;
 	OnUpgradeDataLoadCompleteDelegate.Broadcast(this);
 	OnUpgradeDataLoadCompleteDelegate.Clear();
+
+	LOG_INFO(TEXT("Complete Load UpgradeDataAsset"));
 }
 
 const UUpgradeDataAsset* UPlayerUpgradeSubsystem::FindUpgradeAsset(const FName& InKey) const

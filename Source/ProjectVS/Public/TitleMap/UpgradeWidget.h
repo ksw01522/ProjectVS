@@ -61,6 +61,8 @@ public:
 
 	FText GetNameText() const;
 
+	FText GetDescriptionText() const;
+
 	UTexture2D* GetIconImage() const;
 
 	void TryUpgrade();
