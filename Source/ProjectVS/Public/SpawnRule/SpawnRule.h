@@ -21,8 +21,14 @@ struct FSpawnData
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Monster", meta = (ClampMin = "1"))
 	int Count;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "MonsterSpawn", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "MonsterSpawn", meta = (AllowPrivateAccess = "true", ClampMin = "1"))
 	int Level;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "MonsterSpawn", meta = (AllowPrivateAccess = "true", ClampMin = "0"))
+	int LevelByTime;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "MonsterSpawn", meta = (AllowPrivateAccess = "true", ClampMin = "0"))
+	int BetweenTime;
 };
 /**
  * 

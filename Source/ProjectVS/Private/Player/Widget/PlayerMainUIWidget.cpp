@@ -233,14 +233,11 @@ void UPlayerMainUIWidget::SetLevel(int NewLevel)
 
 void UPlayerMainUIWidget::UpdateIconBoxs()
 {
-	LOG_ERROR(TEXT("Test"));
 	if(!WeakAbilityBook.IsValid()) {return;}
 
 	TArray<const FAbilityPage*> ActivePages;
 	WeakAbilityBook->GetAbilityPageArray(ActivePages, EVSAbilityType::Active);
 	UpdateIconBox(ActiveIconBox, ActivePages);
-
-	LOG_ERROR(TEXT("%d"), ActiveIconBox->GetChildrenCount());
 	
 	TArray<const FAbilityPage*> PassivePages;
 	WeakAbilityBook->GetAbilityPageArray(PassivePages, EVSAbilityType::Passive);
@@ -249,8 +246,6 @@ void UPlayerMainUIWidget::UpdateIconBoxs()
 
 void UPlayerMainUIWidget::UpdateIconBox(UHorizontalBox* IconBox, TArray<const FAbilityPage*>& Pages)
 {
-	LOG_ERROR(TEXT("Test"));
-
 	UAbilityDataManager* ADM = UAbilityDataManager::GetAbilityDataManager();
 	check(ADM)
 
@@ -260,6 +255,7 @@ void UPlayerMainUIWidget::UpdateIconBox(UHorizontalBox* IconBox, TArray<const FA
 	{
 		UImage* TempImage = StaticCast<UImage*>(TempWidget);
 		TempImage->SetBrushFromTexture(nullptr);
+		TempImage->SetVisibility(ESlateVisibility::Collapsed);
 	}
 
 	for (int i = 0; i < PageCount; i++)
@@ -281,6 +277,7 @@ void UPlayerMainUIWidget::UpdateIconBox(UHorizontalBox* IconBox, TArray<const FA
 		if (TempAbility)
 		{
 			TargetImage->SetBrushFromTexture(TempAbility->GetAbilityIcon());
+			TargetImage->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
 		}
 
 	}

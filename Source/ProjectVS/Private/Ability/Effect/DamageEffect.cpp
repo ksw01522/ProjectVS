@@ -12,7 +12,7 @@ UDamageEffect::UDamageEffect()
 
 	FGameplayEffectExecutionScopedModifierInfo EESMI(UAttributeSet_Default::GetDamageTag());
 
-	//데메지 추가
+	//데미지 추가
 	FSetByCallerFloat DamageCaller;
 	DamageCaller.DataName = UAttributeSet_Default::GetDamageName();
 

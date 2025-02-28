@@ -4,6 +4,7 @@
 #include "SpawnRule/SpawnRule.h"
 #include "MonsterWorldManager.h"
 #include "Misc/DataValidation.h"
+#include "PlayGameState.h"
 
 USpawnRule::USpawnRule()
 {
@@ -29,7 +30,15 @@ void USpawnRule::SpawnMonster(UWorld& InWorld)
 
 		CreateSpawnLocations(SpawnLocations, SpawnData, InWorld);
 
-		MonsterWorldManager->SpawnMonseters(SpawnData.Code, SpawnData.Level, SpawnLocations);
+		int FinalLevel = SpawnData.Level;
+		int CurrentTime = InWorld.GetGameState<APlayGameState>()->GetStageTime();
+
+		if (0 < CurrentTime && 0 < SpawnData.LevelByTime && 0 < SpawnData.BetweenTime)
+		{
+			FinalLevel += SpawnData.LevelByTime * (CurrentTime / SpawnData.BetweenTime);
+		}
+
+		MonsterWorldManager->SpawnMonseters(SpawnData.Code, FinalLevel, SpawnLocations);
 	}
 }
 
